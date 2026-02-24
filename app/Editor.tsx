@@ -3,6 +3,7 @@
 import { useCreateBlockNoteWithLiveblocks } from "@liveblocks/react-blocknote";
 import { BlockNoteView } from "@blocknote/mantine";
 import { Threads } from "./Threads";
+import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 
 async function uploadFile(file: File) {
   const body = new FormData();
@@ -18,8 +19,14 @@ async function uploadFile(file: File) {
 }
 
 export function Editor() {
+  const { video, audio, file, ...remainingBlockSpecs } = defaultBlockSpecs;
+  const schema = BlockNoteSchema.create({
+    blockSpecs: {
+      ...remainingBlockSpecs,
+    },
+  });
   const editor = useCreateBlockNoteWithLiveblocks(
-    { uploadFile },
+    { uploadFile, schema },
     {
       offlineSupport_experimental: true,
     },
