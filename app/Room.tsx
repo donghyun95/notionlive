@@ -10,7 +10,7 @@ import {
 export function Room({ children }: { children: ReactNode }) {
   return (
     <LiveblocksProvider authEndpoint={"/api/liveblocks-auth"} throttle={16}>
-      <RoomProvider id="my-room" initialPresence={{ cursor: null }}>
+      <RoomProvider id="my-room2" initialPresence={{ cursor: null }}>
         <ClientSideSuspense fallback={<div>Loading…</div>}>
           {children}
         </ClientSideSuspense>

@@ -17,18 +17,18 @@ async function uploadFile(file: File) {
     "tmpfiles.org/dl/",
   );
 }
+const { video, audio, file, ...remainingBlockSpecs } = defaultBlockSpecs;
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...remainingBlockSpecs,
+  },
+});
 
 export function Editor() {
-  const { video, audio, file, ...remainingBlockSpecs } = defaultBlockSpecs;
-  const schema = BlockNoteSchema.create({
-    blockSpecs: {
-      ...remainingBlockSpecs,
-    },
-  });
   const editor = useCreateBlockNoteWithLiveblocks(
     { uploadFile, schema },
     {
-      offlineSupport_experimental: true,
+      offlineSupport_experimental: false,
     },
   );
 
