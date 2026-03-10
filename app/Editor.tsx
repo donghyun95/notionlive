@@ -5,6 +5,10 @@ import { BlockNoteView } from "@blocknote/mantine";
 import { Threads } from "./Threads";
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 
+type EditorItemProps = {
+  field: string;
+};
+
 async function uploadFile(file: File) {
   const body = new FormData();
   body.append("file", file);
@@ -24,26 +28,33 @@ const schema = BlockNoteSchema.create({
   },
 });
 
-export function Editor() {
+export function Editor({ field }: EditorItemProps) {
   const editor = useCreateBlockNoteWithLiveblocks(
     { uploadFile, schema },
-    {
-      offlineSupport_experimental: false,
-    },
+    { field, offlineSupport_experimental: true },
   );
 
   return (
-    <div>
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        minHeight: "30vh",
+        overflowY: "visible",
+
+        border: "1px solid #ddd",
+        borderRadius: "8px",
+      }}
+    >
       <BlockNoteView
         editor={editor}
         className="editor"
         editable={true}
         onChange={(editor, { getChanges }) => {
           const changes = getChanges();
-          console.log("changes:", changes);
+          // console.log("current content:", JSON.stringify(editor.document));
         }}
       />
-      <Threads editor={editor} />
     </div>
   );
 }

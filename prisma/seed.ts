@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { PrismaClient, WorkspaceRole, WorkspaceType } from "@prisma/client";
+import { PrismaClient, WorkspaceType, WorkspaceRole } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const prisma = new PrismaClient({
@@ -8,288 +8,898 @@ const prisma = new PrismaClient({
   }),
 });
 
-/**
- * workspaceId + parentId + title 조합으로 "논리적 유니크" 취급.
- * (DB에 유니크가 없으니 seed에서 강제)
- */
-async function getOrCreatePage(params: {
-  workspaceId: number;
-  parentId: number | null;
-  title: string;
-  order?: number;
-  authorId: number | null;
-}) {
-  const { workspaceId, parentId, title, order = 0, authorId } = params;
-
-  const existing = await prisma.page.findFirst({
-    where: { workspaceId, parentId, title },
-  });
-
-  if (!existing) {
-    return prisma.page.create({
-      data: { workspaceId, parentId, title, order, authorId },
-    });
-  }
-
-  // seed 재실행 시에도 값이 기대 상태로 유지되도록 update로 맞춰줌
-  return prisma.page.update({
-    where: { id: existing.id },
-    data: { order, authorId },
-  });
-}
-
-/**
- * PERSONAL workspace를 "유저당 1개"로 운용한다는 전제:
- * - type=PERSONAL
- * - members에 (userId, role=OWNER)가 존재
- */
-async function getOrCreatePersonalWorkspace(params: {
-  userId: number;
-  name: string;
-}) {
-  const { userId, name } = params;
-
-  const existing = await prisma.workspace.findFirst({
-    where: {
-      type: WorkspaceType.PERSONAL,
-      members: { some: { userId, role: WorkspaceRole.OWNER } },
+const currentContent = [
+  {
+    id: "c44ca60c-80e5-47b1-b951-defff56f310f",
+    type: "paragraph",
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
     },
-  });
-
-  if (!existing) {
-    return prisma.workspace.create({
-      data: {
-        name,
-        type: WorkspaceType.PERSONAL,
-        members: { create: { userId, role: WorkspaceRole.OWNER } },
+    content: [],
+    children: [],
+  },
+  {
+    id: "02c284c8-6956-4bf8-ade7-7caeaac46846",
+    type: "paragraph",
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
+    },
+    content: [
+      {
+        type: "text",
+        text: "asdaㄴ",
+        styles: {},
       },
-    });
-  }
-
-  return prisma.workspace.update({
-    where: { id: existing.id },
-    data: { name }, // 이름도 seed 기준으로 맞춰줌
-  });
-}
-
-/**
- * TEAM workspace를 idempotent하게 만드는 "현실적" 기준:
- * - type=TEAM
- * - name 일치
- * - owner(여기서는 alice)가 OWNER로 속해있음
- *
- * 진짜로 강하게 보장하려면 DB에 유니크 키를 추가하는 게 정석.
- */
-async function getOrCreateTeamWorkspace(params: {
-  ownerUserId: number;
-  name: string;
-}) {
-  const { ownerUserId, name } = params;
-
-  const existing = await prisma.workspace.findFirst({
-    where: {
-      type: WorkspaceType.TEAM,
-      name,
-      members: { some: { userId: ownerUserId, role: WorkspaceRole.OWNER } },
+    ],
+    children: [],
+  },
+  {
+    id: "3e9df4f2-f167-4f5c-964a-828058300c50",
+    type: "paragraph",
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
     },
-  });
-
-  if (!existing) {
-    return prisma.workspace.create({
-      data: { name, type: WorkspaceType.TEAM },
-    });
-  }
-
-  return prisma.workspace.update({
-    where: { id: existing.id },
-    data: { name },
-  });
-}
-
-async function ensureMembership(params: {
-  userId: number;
-  workspaceId: number;
-  role: WorkspaceRole;
-}) {
-  const { userId, workspaceId, role } = params;
-
-  // WorkspaceMember는 @@id([userId, workspaceId])라 createMany + skipDuplicates가 안전
-  await prisma.workspaceMember.createMany({
-    data: [{ userId, workspaceId, role }],
-    skipDuplicates: true,
-  });
-
-  // role이 바뀌었을 수 있으니 seed 기준으로 맞춰줌
-  await prisma.workspaceMember.update({
-    where: { userId_workspaceId: { userId, workspaceId } },
-    data: { role },
-  });
-}
+    content: [],
+    children: [],
+  },
+];
 
 async function main() {
-  console.log("🌱 Seeding (idempotent)...");
+  console.log("🌱 Start seeding...");
 
-  // --------------------
-  // Users (idempotent)
-  // --------------------
-  const alice = await prisma.user.upsert({
-    where: { email: "alice@test.com" },
-    update: { name: "Alice" },
-    create: { email: "alice@test.com", name: "Alice" },
+  // 삭제 순서: 자식 -> 부모
+  await prisma.pagePartSnapshot.deleteMany();
+  await prisma.pagePart.deleteMany();
+  await prisma.page.deleteMany();
+  await prisma.workspaceMember.deleteMany();
+  await prisma.workspace.deleteMany();
+  await prisma.user.deleteMany();
+
+  // 1) Users
+  const [alice, bob, charlie, diana] = await Promise.all([
+    prisma.user.create({
+      data: {
+        email: "alice@example.com",
+        name: "Alice",
+        image: "https://i.pravatar.cc/150?img=1",
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: "bob@example.com",
+        name: "Bob",
+        image: "https://i.pravatar.cc/150?img=2",
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: "charlie@example.com",
+        name: "Charlie",
+        image: "https://i.pravatar.cc/150?img=3",
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: "diana@example.com",
+        name: "Diana",
+        image: "https://i.pravatar.cc/150?img=4",
+      },
+    }),
+  ]);
+
+  // 2) Workspaces
+  const personalWorkspace = await prisma.workspace.create({
+    data: {
+      name: "Alice Personal Workspace",
+      type: WorkspaceType.PERSONAL,
+    },
   });
 
-  const bob = await prisma.user.upsert({
-    where: { email: "bob@test.com" },
-    update: { name: "Bob" },
-    create: { email: "bob@test.com", name: "Bob" },
+  const teamWorkspace = await prisma.workspace.create({
+    data: {
+      name: "Product Team Workspace",
+      type: WorkspaceType.TEAM,
+    },
   });
 
-  // --------------------
-  // Personal Workspace (Alice) (idempotent)
-  // --------------------
-  const personalWs = await getOrCreatePersonalWorkspace({
-    userId: alice.id,
-    name: "Alice Personal",
+  // 3) Workspace Members
+  await prisma.workspaceMember.createMany({
+    data: [
+      {
+        userId: alice.id,
+        workspaceId: personalWorkspace.id,
+        role: WorkspaceRole.OWNER,
+      },
+      {
+        userId: alice.id,
+        workspaceId: teamWorkspace.id,
+        role: WorkspaceRole.OWNER,
+      },
+      {
+        userId: bob.id,
+        workspaceId: teamWorkspace.id,
+        role: WorkspaceRole.ADMIN,
+      },
+      {
+        userId: charlie.id,
+        workspaceId: teamWorkspace.id,
+        role: WorkspaceRole.MEMBER,
+      },
+      {
+        userId: diana.id,
+        workspaceId: teamWorkspace.id,
+        role: WorkspaceRole.VIEWER,
+      },
+    ],
   });
 
-  // (개인 워크스페이스 멤버십은 create에서 같이 만들지만, role 보정용으로 한 번 더 확실히)
-  await ensureMembership({
-    userId: alice.id,
-    workspaceId: personalWs.id,
-    role: WorkspaceRole.OWNER,
+  // ---------------------------------------------------------------------------
+  // 4) PERSONAL workspace pages
+  // ---------------------------------------------------------------------------
+
+  const personalRoot = await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      authorId: alice.id,
+      title: "개인 홈",
+      icon: "🏠",
+      order: 0,
+    },
   });
 
-  // --------------------
-  // Team Workspace (idempotent)
-  // --------------------
-  const teamWs = await getOrCreateTeamWorkspace({
-    ownerUserId: alice.id,
-    name: "Frontend Team",
+  const personalTodo = await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      parentId: personalRoot.id,
+      authorId: alice.id,
+      title: "오늘 할 일",
+      icon: "✅",
+      order: 0,
+    },
   });
 
-  // memberships (idempotent)
-  await ensureMembership({
-    userId: alice.id,
-    workspaceId: teamWs.id,
-    role: WorkspaceRole.OWNER,
+  const personalJournal = await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      parentId: personalRoot.id,
+      authorId: alice.id,
+      title: "일지",
+      icon: "📓",
+      order: 1,
+    },
   });
 
-  await ensureMembership({
-    userId: bob.id,
-    workspaceId: teamWs.id,
-    role: WorkspaceRole.MEMBER,
+  const personalMorning = await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      parentId: personalTodo.id,
+      authorId: alice.id,
+      title: "출근 전",
+      icon: "🌅",
+      order: 0,
+    },
   });
 
-  // --------------------
-  // Pages (Team Tree) (idempotent)
-  // --------------------
-  const teamRoot = await getOrCreatePage({
-    workspaceId: teamWs.id,
-    parentId: null,
-    title: "Project Docs",
-    order: 0,
-    authorId: alice.id,
+  const personalEvening = await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      parentId: personalTodo.id,
+      authorId: alice.id,
+      title: "퇴근 후",
+      icon: "🌙",
+      order: 1,
+    },
   });
 
-  const apiSpec = await getOrCreatePage({
-    workspaceId: teamWs.id,
-    parentId: teamRoot.id,
-    title: "API Spec",
-    order: 0,
-    authorId: alice.id,
+  const personalDrinkWater = await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      parentId: personalMorning.id,
+      authorId: alice.id,
+      title: "물 마시기",
+      icon: "💧",
+      order: 0,
+    },
   });
 
-  await getOrCreatePage({
-    workspaceId: teamWs.id,
-    parentId: teamRoot.id,
-    title: "UI Planning",
-    order: 1,
-    authorId: bob.id,
+  const personalCheckSchedule = await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      parentId: personalMorning.id,
+      authorId: alice.id,
+      title: "오늘 일정 확인",
+      icon: "📅",
+      order: 1,
+    },
   });
 
-  await getOrCreatePage({
-    workspaceId: teamWs.id,
-    parentId: apiSpec.id,
-    title: "Auth Flow",
-    order: 0,
-    authorId: alice.id,
+  const personalWorkout = await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      parentId: personalEvening.id,
+      authorId: alice.id,
+      title: "운동",
+      icon: "🏃",
+      order: 0,
+    },
   });
 
-  // --------------------
-  // Pages (Personal Tree) - root + 3 depth (idempotent)
-  // --------------------
-  const pRoot = await getOrCreatePage({
-    workspaceId: personalWs.id,
-    parentId: null,
-    title: "Home",
-    order: 0,
-    authorId: alice.id,
+  const journal2026 = await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      parentId: personalJournal.id,
+      authorId: alice.id,
+      title: "2026년",
+      icon: "🗓️",
+      order: 0,
+    },
   });
 
-  // depth 1
-  const pDaily = await getOrCreatePage({
-    workspaceId: personalWs.id,
-    parentId: pRoot.id,
-    title: "Daily Notes",
-    order: 0,
-    authorId: alice.id,
+  const personalRetrospective = await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      parentId: personalJournal.id,
+      authorId: alice.id,
+      title: "회고",
+      icon: "🔍",
+      order: 1,
+    },
   });
 
-  const pProjects = await getOrCreatePage({
-    workspaceId: personalWs.id,
-    parentId: pRoot.id,
-    title: "Personal Projects",
-    order: 1,
-    authorId: alice.id,
+  const journalMarch = await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      parentId: journal2026.id,
+      authorId: alice.id,
+      title: "3월",
+      icon: "🌸",
+      order: 0,
+    },
   });
 
-  // depth 2
-  const p2026 = await getOrCreatePage({
-    workspaceId: personalWs.id,
-    parentId: pDaily.id,
-    title: "2026",
-    order: 0,
-    authorId: alice.id,
+  await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      parentId: journal2026.id,
+      authorId: alice.id,
+      title: "4월",
+      icon: "🌿",
+      order: 1,
+    },
   });
 
-  const pReading = await getOrCreatePage({
-    workspaceId: personalWs.id,
-    parentId: pProjects.id,
-    title: "Reading List",
-    order: 0,
-    authorId: alice.id,
+  const journalMarch8 = await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      parentId: journalMarch.id,
+      authorId: alice.id,
+      title: "3월 8일",
+      icon: "📝",
+      order: 0,
+    },
   });
 
-  // depth 3
-  await getOrCreatePage({
-    workspaceId: personalWs.id,
-    parentId: p2026.id,
-    title: "2026-03",
-    order: 0,
-    authorId: alice.id,
+  const journalMarch9 = await prisma.page.create({
+    data: {
+      workspaceId: personalWorkspace.id,
+      parentId: journalMarch.id,
+      authorId: alice.id,
+      title: "3월 9일",
+      icon: "📝",
+      order: 1,
+    },
   });
 
-  await getOrCreatePage({
-    workspaceId: personalWs.id,
-    parentId: pReading.id,
-    title: "Backend",
-    order: 0,
-    authorId: alice.id,
+  // ---------------------------------------------------------------------------
+  // 5) TEAM workspace pages
+  // ---------------------------------------------------------------------------
+
+  const teamRoot = await prisma.page.create({
+    data: {
+      workspaceId: teamWorkspace.id,
+      authorId: alice.id,
+      title: "팀 위키",
+      icon: "📚",
+      order: 0,
+    },
   });
 
-  await getOrCreatePage({
-    workspaceId: personalWs.id,
-    parentId: pReading.id,
-    title: "Product",
-    order: 1,
-    authorId: alice.id,
+  const roadmapPage = await prisma.page.create({
+    data: {
+      workspaceId: teamWorkspace.id,
+      parentId: teamRoot.id,
+      authorId: bob.id,
+      title: "로드맵",
+      icon: "🗺️",
+      order: 0,
+    },
   });
 
-  console.log("✅ Seed complete (idempotent)");
+  const meetingNotesPage = await prisma.page.create({
+    data: {
+      workspaceId: teamWorkspace.id,
+      parentId: teamRoot.id,
+      authorId: charlie.id,
+      title: "회의록",
+      icon: "📝",
+      order: 1,
+    },
+  });
+
+  const backendPage = await prisma.page.create({
+    data: {
+      workspaceId: teamWorkspace.id,
+      parentId: roadmapPage.id,
+      authorId: bob.id,
+      title: "백엔드 작업",
+      icon: "⚙️",
+      order: 0,
+    },
+  });
+
+  const frontendPage = await prisma.page.create({
+    data: {
+      workspaceId: teamWorkspace.id,
+      parentId: roadmapPage.id,
+      authorId: charlie.id,
+      title: "프론트엔드 작업",
+      icon: "🎨",
+      order: 1,
+    },
+  });
+
+  // ---------------------------------------------------------------------------
+  // 6) PageParts
+  // ---------------------------------------------------------------------------
+
+  const personalTodoPart1 = await prisma.pagePart.create({
+    data: {
+      pageId: personalTodo.id,
+      partNo: 1,
+      roomId: "room-personal-todo-1",
+    },
+  });
+
+  const personalTodoPart2 = await prisma.pagePart.create({
+    data: {
+      pageId: personalTodo.id,
+      partNo: 2,
+      roomId: "room-personal-todo-2",
+    },
+  });
+
+  const personalJournalPart1 = await prisma.pagePart.create({
+    data: {
+      pageId: personalJournal.id,
+      partNo: 1,
+      roomId: "room-personal-journal-1",
+    },
+  });
+
+  const personalMorningPart1 = await prisma.pagePart.create({
+    data: {
+      pageId: personalMorning.id,
+      partNo: 1,
+      roomId: "room-personal-morning-1",
+    },
+  });
+
+  const personalDrinkWaterPart1 = await prisma.pagePart.create({
+    data: {
+      pageId: personalDrinkWater.id,
+      partNo: 1,
+      roomId: "room-personal-drink-water-1",
+    },
+  });
+
+  const personalCheckSchedulePart1 = await prisma.pagePart.create({
+    data: {
+      pageId: personalCheckSchedule.id,
+      partNo: 1,
+      roomId: "room-personal-check-schedule-1",
+    },
+  });
+
+  const personalWorkoutPart1 = await prisma.pagePart.create({
+    data: {
+      pageId: personalWorkout.id,
+      partNo: 1,
+      roomId: "room-personal-workout-1",
+    },
+  });
+
+  const journalMarch8Part1 = await prisma.pagePart.create({
+    data: {
+      pageId: journalMarch8.id,
+      partNo: 1,
+      roomId: "room-journal-march8-1",
+    },
+  });
+
+  const journalMarch9Part1 = await prisma.pagePart.create({
+    data: {
+      pageId: journalMarch9.id,
+      partNo: 1,
+      roomId: "room-journal-march9-1",
+    },
+  });
+
+  const personalRetrospectivePart1 = await prisma.pagePart.create({
+    data: {
+      pageId: personalRetrospective.id,
+      partNo: 1,
+      roomId: "room-personal-retrospective-1",
+    },
+  });
+
+  const roadmapPart1 = await prisma.pagePart.create({
+    data: {
+      pageId: roadmapPage.id,
+      partNo: 1,
+      roomId: "room-roadmap-1",
+    },
+  });
+
+  const roadmapPart2 = await prisma.pagePart.create({
+    data: {
+      pageId: roadmapPage.id,
+      partNo: 2,
+      roomId: "room-roadmap-2",
+    },
+  });
+
+  const meetingNotesPart1 = await prisma.pagePart.create({
+    data: {
+      pageId: meetingNotesPage.id,
+      partNo: 1,
+      roomId: "room-meeting-notes-1",
+    },
+  });
+
+  const backendPart1 = await prisma.pagePart.create({
+    data: {
+      pageId: backendPage.id,
+      partNo: 1,
+      roomId: "room-backend-1",
+    },
+  });
+
+  const frontendPart1 = await prisma.pagePart.create({
+    data: {
+      pageId: frontendPage.id,
+      partNo: 1,
+      roomId: "room-frontend-1",
+    },
+  });
+
+  // ---------------------------------------------------------------------------
+  // 7) PagePartSnapshots
+  // roomId는 반드시 연결된 PagePart.roomId와 동일해야 함
+  // ---------------------------------------------------------------------------
+
+  await prisma.pagePartSnapshot.createMany({
+    data: [
+      // PERSONAL - 오늘 할 일 / part1
+      {
+        pagePartId: personalTodoPart1.id,
+        version: 1,
+        roomId: personalTodoPart1.roomId,
+        contentJson: currentContent,
+        contentHtml: "<p></p><p>asdaㄴ</p><p></p>",
+        contentText: "asdaㄴ",
+      },
+      {
+        pagePartId: personalTodoPart1.id,
+        version: 2,
+        roomId: personalTodoPart1.roomId,
+        contentJson: [
+          ...currentContent,
+          {
+            id: "extra-personal-todo-v2",
+            type: "paragraph",
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
+              {
+                type: "text",
+                text: "두 번째 버전의 할 일 메모",
+                styles: {},
+              },
+            ],
+            children: [],
+          },
+        ],
+        contentHtml:
+          "<p></p><p>asdaㄴ</p><p></p><p>두 번째 버전의 할 일 메모</p>",
+        contentText: "asdaㄴ\n두 번째 버전의 할 일 메모",
+      },
+
+      // PERSONAL - 오늘 할 일 / part2
+      {
+        pagePartId: personalTodoPart2.id,
+        version: 1,
+        roomId: personalTodoPart2.roomId,
+        contentJson: [
+          {
+            id: "personal-todo-extra-2",
+            type: "paragraph",
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
+              {
+                type: "text",
+                text: "오늘 할 일의 두 번째 파트",
+                styles: {},
+              },
+            ],
+            children: [],
+          },
+        ],
+        contentHtml: "<p>오늘 할 일의 두 번째 파트</p>",
+        contentText: "오늘 할 일의 두 번째 파트",
+      },
+
+      // PERSONAL - 일지
+      {
+        pagePartId: personalJournalPart1.id,
+        version: 1,
+        roomId: personalJournalPart1.roomId,
+        contentJson: [
+          {
+            id: "journal-1",
+            type: "paragraph",
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
+              {
+                type: "text",
+                text: "오늘은 시드 데이터를 만들었다.",
+                styles: {},
+              },
+            ],
+            children: [],
+          },
+        ],
+        contentHtml: "<p>오늘은 시드 데이터를 만들었다.</p>",
+        contentText: "오늘은 시드 데이터를 만들었다.",
+      },
+
+      // PERSONAL - 출근 전
+      {
+        pagePartId: personalMorningPart1.id,
+        version: 1,
+        roomId: personalMorningPart1.roomId,
+        contentJson: [
+          {
+            id: "morning-1",
+            type: "paragraph",
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
+              {
+                type: "text",
+                text: "아침 루틴 체크",
+                styles: {},
+              },
+            ],
+            children: [],
+          },
+        ],
+        contentHtml: "<p>아침 루틴 체크</p>",
+        contentText: "아침 루틴 체크",
+      },
+
+      // PERSONAL - 물 마시기
+      {
+        pagePartId: personalDrinkWaterPart1.id,
+        version: 1,
+        roomId: personalDrinkWaterPart1.roomId,
+        contentJson: currentContent,
+        contentHtml: "<p></p><p>asdaㄴ</p><p></p>",
+        contentText: "asdaㄴ",
+      },
+
+      // PERSONAL - 오늘 일정 확인
+      {
+        pagePartId: personalCheckSchedulePart1.id,
+        version: 1,
+        roomId: personalCheckSchedulePart1.roomId,
+        contentJson: [
+          {
+            id: "schedule-1",
+            type: "paragraph",
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
+              {
+                type: "text",
+                text: "캘린더 확인 후 우선순위 정리",
+                styles: {},
+              },
+            ],
+            children: [],
+          },
+        ],
+        contentHtml: "<p>캘린더 확인 후 우선순위 정리</p>",
+        contentText: "캘린더 확인 후 우선순위 정리",
+      },
+
+      // PERSONAL - 운동
+      {
+        pagePartId: personalWorkoutPart1.id,
+        version: 1,
+        roomId: personalWorkoutPart1.roomId,
+        contentJson: [
+          {
+            id: "workout-1",
+            type: "paragraph",
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
+              {
+                type: "text",
+                text: "저녁 러닝 30분",
+                styles: {},
+              },
+            ],
+            children: [],
+          },
+        ],
+        contentHtml: "<p>저녁 러닝 30분</p>",
+        contentText: "저녁 러닝 30분",
+      },
+
+      // PERSONAL - 3월 8일
+      {
+        pagePartId: journalMarch8Part1.id,
+        version: 1,
+        roomId: journalMarch8Part1.roomId,
+        contentJson: [
+          {
+            id: "journal-march8-1",
+            type: "paragraph",
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
+              {
+                type: "text",
+                text: "3월 8일 일지 내용",
+                styles: {},
+              },
+            ],
+            children: [],
+          },
+        ],
+        contentHtml: "<p>3월 8일 일지 내용</p>",
+        contentText: "3월 8일 일지 내용",
+      },
+
+      // PERSONAL - 3월 9일
+      {
+        pagePartId: journalMarch9Part1.id,
+        version: 1,
+        roomId: journalMarch9Part1.roomId,
+        contentJson: [
+          {
+            id: "journal-march9-1",
+            type: "paragraph",
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
+              {
+                type: "text",
+                text: "3월 9일 일지 내용",
+                styles: {},
+              },
+            ],
+            children: [],
+          },
+        ],
+        contentHtml: "<p>3월 9일 일지 내용</p>",
+        contentText: "3월 9일 일지 내용",
+      },
+
+      // PERSONAL - 회고
+      {
+        pagePartId: personalRetrospectivePart1.id,
+        version: 1,
+        roomId: personalRetrospectivePart1.roomId,
+        contentJson: [
+          {
+            id: "retro-1",
+            type: "paragraph",
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
+              {
+                type: "text",
+                text: "이번 주 회고: 페이지 구조 테스트 완료",
+                styles: {},
+              },
+            ],
+            children: [],
+          },
+        ],
+        contentHtml: "<p>이번 주 회고: 페이지 구조 테스트 완료</p>",
+        contentText: "이번 주 회고: 페이지 구조 테스트 완료",
+      },
+
+      // TEAM - 로드맵 / part1
+      {
+        pagePartId: roadmapPart1.id,
+        version: 1,
+        roomId: roadmapPart1.roomId,
+        contentJson: currentContent,
+        contentHtml: "<p></p><p>asdaㄴ</p><p></p>",
+        contentText: "asdaㄴ",
+      },
+
+      // TEAM - 로드맵 / part2
+      {
+        pagePartId: roadmapPart2.id,
+        version: 1,
+        roomId: roadmapPart2.roomId,
+        contentJson: [
+          {
+            id: "roadmap-2-1",
+            type: "paragraph",
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
+              {
+                type: "text",
+                text: "Q2: 협업 편집 기능 개선",
+                styles: {},
+              },
+            ],
+            children: [],
+          },
+        ],
+        contentHtml: "<p>Q2: 협업 편집 기능 개선</p>",
+        contentText: "Q2: 협업 편집 기능 개선",
+      },
+
+      // TEAM - 회의록
+      {
+        pagePartId: meetingNotesPart1.id,
+        version: 1,
+        roomId: meetingNotesPart1.roomId,
+        contentJson: [
+          {
+            id: "meeting-1",
+            type: "paragraph",
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
+              {
+                type: "text",
+                text: "회의 안건: 페이지 트리 정렬 정책 논의",
+                styles: {},
+              },
+            ],
+            children: [],
+          },
+        ],
+        contentHtml: "<p>회의 안건: 페이지 트리 정렬 정책 논의</p>",
+        contentText: "회의 안건: 페이지 트리 정렬 정책 논의",
+      },
+
+      // TEAM - 백엔드 작업
+      {
+        pagePartId: backendPart1.id,
+        version: 1,
+        roomId: backendPart1.roomId,
+        contentJson: [
+          {
+            id: "backend-1",
+            type: "paragraph",
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
+              {
+                type: "text",
+                text: "Prisma transaction 적용 검토",
+                styles: {},
+              },
+            ],
+            children: [],
+          },
+        ],
+        contentHtml: "<p>Prisma transaction 적용 검토</p>",
+        contentText: "Prisma transaction 적용 검토",
+      },
+
+      // TEAM - 프론트엔드 작업
+      {
+        pagePartId: frontendPart1.id,
+        version: 1,
+        roomId: frontendPart1.roomId,
+        contentJson: [
+          {
+            id: "frontend-1",
+            type: "paragraph",
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+            content: [
+              {
+                type: "text",
+                text: "드래그앤드롭 UI 개선 필요",
+                styles: {},
+              },
+            ],
+            children: [],
+          },
+        ],
+        contentHtml: "<p>드래그앤드롭 UI 개선 필요</p>",
+        contentText: "드래그앤드롭 UI 개선 필요",
+      },
+    ],
+  });
+
+  const userCount = await prisma.user.count();
+  const workspaceCount = await prisma.workspace.count();
+  const pageCount = await prisma.page.count();
+  const pagePartCount = await prisma.pagePart.count();
+  const snapshotCount = await prisma.pagePartSnapshot.count();
+
+  console.log("✅ Seed completed");
+  console.log({
+    users: userCount,
+    workspaces: workspaceCount,
+    pages: pageCount,
+    pageParts: pagePartCount,
+    snapshots: snapshotCount,
+  });
 }
 
 main()
   .catch((e) => {
+    console.error("❌ Seed failed");
     console.error(e);
     process.exit(1);
   })

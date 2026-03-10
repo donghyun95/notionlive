@@ -23,7 +23,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const sidebarData = await getSidebarData(1);
+  const sidebarData = await getSidebarData(5);
   const childrenPages = await getChildrenPageByParentsId(5);
   // console.log("getChilrenPage", childrenPages);
 
@@ -54,7 +54,8 @@ export default async function RootLayout({
         </header>
 
         <div className="min-h-0 flex flex-1 flex-col gap-4 px-4">
-          <div className="min-h-0 flex-1 overflow-auto py-10">{children}</div>
+          {/* <div className="min-h-0 flex-1 overflow-auto py-10">{children}</div> */}
+          <div className="py-10 overflow-visible">{children}</div>
         </div>
       </SidebarInset>
     </SidebarProvider>

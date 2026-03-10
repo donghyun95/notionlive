@@ -72,8 +72,6 @@ model Page {
 
   // 페이지 트리 (부모-자식)
   parentId    Int?
-  parent      Page?     @relation("PageTree", fields: [parentId], references: [id], onDelete: Cascade)
-  children    Page[]    @relation("PageTree")
 
   // 작성자 (유저 삭제/탈퇴 대비해서 nullable)
   authorId    Int?
@@ -81,7 +79,6 @@ model Page {
 
   title       String
   icon        String?
-  content     Json?     // 처음엔 String?로 해도 되지만, 블록형이면 Json이 편함
 
   // 같은 부모 아래 정렬(드래그앤드롭에 필요)
   order       Int       @default(0)
@@ -89,8 +86,48 @@ model Page {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  parts     PagePart[]
+
   @@index([workspaceId])
   @@index([parentId])
   @@index([authorId])
   @@index([workspaceId, parentId, order])
+}
+
+model PagePart {
+  id         Int      @id @default(autoincrement())
+  pageId     Int
+  partNo     Int
+  roomId     String   @unique
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  page       Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  snapshots  PagePartSnapshot[]
+
+  @@unique([pageId, partNo])
+  @@index([pageId])
+}
+
+
+
+model PagePartSnapshot {
+  id          Int      @id @default(autoincrement())
+  pagePartId  Int
+  version     Int
+  contentJson Json
+  contentHtml String?
+  contentText String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  roomId     String   
+
+
+
+  pagePart    PagePart @relation(fields: [pagePartId], references: [id], onDelete: Cascade)
+
+  @@unique([pagePartId, version])
+  @@index([pagePartId])
 }

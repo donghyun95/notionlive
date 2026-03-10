@@ -1,9 +1,4 @@
-import { Room } from "./Room";
-import { Editor } from "./Editor";
+import { getPagePartRooms } from "@/server/users/queries";
 export default function Page() {
-  return (
-    <Room>
-      <Editor />
-    </Room>
-  );
+  return <div>home</div>;
 }
