@@ -23,10 +23,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const sidebarData = await getSidebarData(5);
-  const childrenPages = await getChildrenPageByParentsId(5);
-  // console.log("getChilrenPage", childrenPages);
-
+  // const sidebarData = await getSidebarData(2);
+  // const childrenPages = await getChildrenPageByParentsId(5);
+  const sidebarData = null;
   return (
     <SidebarProvider>
       <AppSidebar data={sidebarData as any} />
@@ -57,4 +56,3 @@ export default async function RootLayout({
     </SidebarProvider>
   );
 }
-//className="min-h-0 flex-1 overflow-auto py-10"

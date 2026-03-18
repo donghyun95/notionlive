@@ -1,8 +1,7 @@
 'use client';
-import { useState } from 'react';
+
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-
 import {
   Field,
   FieldGroup,
@@ -16,9 +15,10 @@ import { z } from 'zod';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SignUpDialog } from './signUp-dialog';
-
+import { signIn } from 'next-auth/react';
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email addres'),
+  password: z.string().min(1, 'Password is required'),
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;
@@ -31,42 +31,20 @@ export function LoginForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
+      password: '',
     },
   });
 
-  const [disabledUntil, setDisabledUntil] = useState<number | null>(null);
-  const [lastEmail, setLastEmail] = useState<string | null>(null);
-  const [remaining, setRemaining] = useState<number>(0);
+  async function onSubmit(values: LoginFormValues) {
+    const result = await signIn('credentials', {
+      email: values.email,
+      password: values.password,
+      redirect: false,
+      // callbackUrl: '/dashboard',
+    });
 
-  const isDisabled = disabledUntil && Date.now() < disabledUntil;
-
-  function startCooldown(email: string) {
-    const expire = Date.now() + 60000;
-    setDisabledUntil(expire);
-    setLastEmail(email);
-
-    const interval = setInterval(() => {
-      const diff = Math.ceil((expire - Date.now()) / 1000);
-      if (diff <= 0) {
-        clearInterval(interval);
-        setDisabledUntil(null);
-        setRemaining(0);
-      } else {
-        setRemaining(diff);
-      }
-    }, 1000);
-  }
-
-  function onSubmit(values: LoginFormValues) {
-    if (
-      lastEmail === values.email &&
-      disabledUntil &&
-      Date.now() < disabledUntil
-    ) {
-      return;
-    }
-
-    startCooldown(values.email);
+    console.log('signIn: ', result);
+    return;
   }
 
   return (
@@ -74,7 +52,7 @@ export function LoginForm({
       <form id="email-form" onSubmit={form.handleSubmit(onSubmit)}>
         <FieldGroup>
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-xl font-bold">Welcome to WorkSpace</h1>
+            <h1 className="text-xl font-bold">Welcome to TeamSpace</h1>
           </div>
 
           <Controller
@@ -87,7 +65,7 @@ export function LoginForm({
                   {...field}
                   id="email-login"
                   aria-invalid={fieldState.invalid}
-                  placeholder="Login button not working on mobile"
+                  placeholder="Enter your Email"
                   autoComplete="off"
                 />
                 {fieldState.invalid && (
@@ -97,13 +75,30 @@ export function LoginForm({
             )}
           />
 
+          <Controller
+            name="password"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="password-login">password</FieldLabel>
+                <Input
+                  {...field}
+                  id="password-login"
+                  aria-invalid={fieldState.invalid}
+                  placeholder="Enter your password"
+                  autoComplete="off"
+                  type="password"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
           <Field>
-            <Button
-              type="submit"
-              form="email-form"
-              disabled={isDisabled || false}
-            >
-              {isDisabled ? `Wait ${remaining}s` : 'Login'}
+            <Button type="submit" form="email-form">
+              Login
             </Button>
           </Field>
         </FieldGroup>

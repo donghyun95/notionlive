@@ -1,9 +1,9 @@
 'use client';
 import { signOut } from 'next-auth/react';
 
-export default function Page({ params }: any) {
+export default async function Page({ params }: any) {
   function logout(ev) {
-    signOut({ callbackUrl: '/login' });
+    signOut();
   }
   return (
     <div>
