@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import {
   LiveblocksProvider,
   RoomProvider,
@@ -25,10 +25,35 @@ export function Room({ id, children }: any) {
   return (
     <LiveblocksProvider authEndpoint="/api/liveblocks-auth" throttle={16}>
       <RoomProvider id={'example'} initialPresence={{ cursor: null }}>
-        <ClientSideSuspense fallback={<div>Loading…</div>}>
+        <ClientSideSuspense fallback={<LoadingFallback />}>
           {children}
         </ClientSideSuspense>
       </RoomProvider>
     </LiveblocksProvider>
   );
+}
+
+export function LoadingFallback() {
+  useEffect(() => {
+    performance.mark('suspense-fallback-mounted');
+    console.log('[perf] fallback mounted');
+
+    return () => {
+      performance.mark('suspense-fallback-unmounted');
+      performance.measure(
+        'suspense-fallback-duration',
+        'suspense-fallback-mounted',
+        'suspense-fallback-unmounted',
+      );
+
+      const entries = performance.getEntriesByName(
+        'suspense-fallback-duration',
+      );
+      const last = entries[entries.length - 1];
+
+      console.log('[perf] fallback duration:', Math.round(last.duration), 'ms');
+    };
+  }, []);
+
+  return <div>Loading…</div>;
 }
