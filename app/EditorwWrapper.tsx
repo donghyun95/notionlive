@@ -9,12 +9,15 @@ import {
   useCallback,
   useEffect,
   useState,
+  useLayoutEffect,
 } from 'react';
 import FloatingCursor from './FloatingCursor';
 import { PopOverEmoticon } from './PopOverEmoticon';
 
 const CursorLayer = memo(function CursorLayer({ propsRect }) {
   const others = useOthers();
+  console.log(others);
+  if (others.length === 0) return <></>;
   const cursorElements = useMemo(() => {
     return others
       .filter((other) => other.presence.cursor != null)
@@ -35,7 +38,7 @@ export function EditorWrapper({ children }: { children: ReactNode }) {
   const [rect, setRect] = useState({
     height: 0,
   });
-
+  const [showCursorLayer, setShowCursorLayer] = useState(false);
   const updateMyPresence = useUpdateMyPresence();
 
   const handlePointerMove = useCallback(
@@ -57,12 +60,12 @@ export function EditorWrapper({ children }: { children: ReactNode }) {
     updateMyPresence({ cursor: null });
   }, [updateMyPresence]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // if (!contentRef.current) return;
     const el = contentRef.current;
     const updateRect = () => {
-      // if (!el) return;
-      const r = contentRef.current!.getBoundingClientRect();
+      if (!el) return;
+      const r = el.getBoundingClientRect();
 
       setRect({
         height: r.height,
@@ -71,9 +74,17 @@ export function EditorWrapper({ children }: { children: ReactNode }) {
 
     updateRect();
     const observer = new ResizeObserver(updateRect);
-    observer.observe(contentRef.current);
+    observer.observe(el);
 
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      setShowCursorLayer(true);
+    });
+
+    return () => cancelAnimationFrame(id);
   }, []);
 
   return (
@@ -83,9 +94,9 @@ export function EditorWrapper({ children }: { children: ReactNode }) {
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
     >
-      <PopOverEmoticon></PopOverEmoticon>
+      {showCursorLayer && <PopOverEmoticon />}
       {children}
-      {rect && <CursorLayer propsRect={rect} />}
+      {showCursorLayer && <CursorLayer propsRect={rect} />}
     </div>
   );
 }

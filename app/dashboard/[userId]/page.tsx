@@ -23,12 +23,9 @@ export default async function Page() {
   //workspace:${workspaceId}:page:${pageId}
   return (
     <Room id={session.user.id}>
-      <EditorProvider>
-        <EditorWrapper>
-          <TitleInput />
-          <Editor />
-        </EditorWrapper>
-      </EditorProvider>
+      <EditorWrapper>
+        <Editor />
+      </EditorWrapper>
     </Room>
   );
 }

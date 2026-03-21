@@ -1,9 +1,7 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
-import { EditorProvider, useEditor } from './EditorProvider';
 
-export function TitleInput() {
-  const editor = useEditor();
+export function TitleInput({ editor }: any) {
   const [title, setTitle] = useState('');
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
