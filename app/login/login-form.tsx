@@ -15,7 +15,8 @@ import { z } from 'zod';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SignUpDialog } from './signUp-dialog';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email addres'),
   password: z.string().min(1, 'Password is required'),
@@ -27,6 +28,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const router = useRouter();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -39,12 +41,14 @@ export function LoginForm({
     const result = await signIn('credentials', {
       email: values.email,
       password: values.password,
-      redirect: false,
-      // callbackUrl: '/dashboard',
-    });
 
-    console.log('signIn: ', result);
-    return;
+      callbackUrl: '/dashboard',
+    });
+    if (result?.error) {
+      // 에러 메시지 표시
+      return;
+    }
+    router.push('/dashboard');
   }
 
   return (
@@ -66,7 +70,7 @@ export function LoginForm({
                   id="email-login"
                   aria-invalid={fieldState.invalid}
                   placeholder="Enter your Email"
-                  autoComplete="off"
+                  autoComplete="email"
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />

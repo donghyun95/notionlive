@@ -1,11 +1,15 @@
 import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/lib/password';
+import { createId } from '@paralleldrive/cuid2';
+import { auth } from '@/lib/auth';
+import { WorkspaceType, WorkspaceRole } from '@prisma/client';
 export async function getUsers() {
   return prisma.user.findMany({
     select: {
       id: true,
       email: true,
       name: true,
+      image: true,
     },
   });
 }
@@ -14,7 +18,6 @@ type RegisterUserInput = {
   email: string;
   password: string;
   name?: string;
-  image?: string;
 };
 
 export async function registerUser({
@@ -29,26 +32,46 @@ export async function registerUser({
   if (existingUser) {
     throw new Error('이미 가입된 이메일입니다.');
   }
-
+  const randomImageSeed = createId();
   const hashedPassword = await hashPassword(password);
 
-  const user = await prisma.user.create({
-    data: {
-      email,
-      password: hashedPassword,
-      name,
-    },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      image: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    const user = await tx.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+        image: `https://api.dicebear.com/9.x/pixel-art/svg?seed=TeamSpace-${randomImageSeed}&radius=50&backgroundColor=b6e3f4,c0aede,d1d4f9`,
+      },
+    });
 
-  return user;
+    const workspace = await tx.workspace.create({
+      data: {
+        name: `${name}'s Personal WorkSpace`,
+        type: WorkspaceType.PERSONAL,
+      },
+    });
+    await tx.workspaceMember.create({
+      data: {
+        userId: user.id,
+        workspaceId: workspace.id,
+        role: WorkspaceRole.OWNER,
+      },
+    });
+    const page = await tx.page.create({
+      data: {
+        workspaceId: workspace.id,
+        authorId: user.id,
+        title: 'UnTitled',
+        order: 0,
+      },
+    });
+    return {
+      user,
+      workspace,
+      page,
+    };
+  });
 }
 
 export async function getSidebarData(userId: string) {

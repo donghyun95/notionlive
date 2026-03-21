@@ -21,7 +21,7 @@ type RoomProps = {
   data: RoomData[];
 };
 
-export function Room({ data, children }: any) {
+export function Room({ id, children }: any) {
   return (
     <LiveblocksProvider authEndpoint="/api/liveblocks-auth" throttle={16}>
       <RoomProvider id={'example'} initialPresence={{ cursor: null }}>

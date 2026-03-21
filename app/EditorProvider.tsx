@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useRef, ReactNode, useEffect } from 'react';
+import { createContext, useContext, ReactNode, useRef, useEffect } from 'react';
 import { useCreateBlockNoteWithLiveblocks } from '@liveblocks/react-blocknote';
 import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 
@@ -25,10 +25,23 @@ const schema = BlockNoteSchema.create({
 });
 
 export function EditorProvider({ children }: { children: ReactNode }) {
+  console.count('EditorProvider render');
   const editor = useCreateBlockNoteWithLiveblocks(
     { uploadFile, schema },
-    { offlineSupport_experimental: true },
+    { offlineSupport_experimental: false },
   );
+
+  const prevEditorRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (prevEditorRef.current !== editor) {
+      console.log('🔥 editor instance changed');
+    } else {
+      console.log('same editor instance');
+    }
+
+    prevEditorRef.current = editor;
+  }, [editor]);
 
   return (
     <EditorContext.Provider value={editor}>{children}</EditorContext.Provider>

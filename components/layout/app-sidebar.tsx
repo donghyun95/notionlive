@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   AudioWaveform,
   Blocks,
@@ -13,19 +13,19 @@ import {
   Settings2,
   Sparkles,
   Trash2,
-} from "lucide-react";
+} from 'lucide-react';
 
-import { NavPersonalSpace } from "./nav-personalSpace";
-import { NavMain } from "./nav-main";
-import { NavSecondary } from "./nav-secondary";
-import { NavWorkspaces } from "./nav-workspaces";
-import { TeamSwitcher } from "./team-switcher";
+import { NavPersonalSpace } from './nav-personalSpace';
+import { NavMain } from './nav-main';
+import { NavSecondary } from './nav-secondary';
+import { NavWorkspaces } from './nav-workspaces';
+import { TeamSwitcher } from './team-switcher';
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 
 // type SidebarData = {
 //   teams: any[];
@@ -259,7 +259,7 @@ export function AppSidebar({
       <SidebarContent>
         <NavWorkspaces workspaces={data.workspaces} />
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
-        <NavPersonalSpace pages={data.personal.rootPages} />
+        {/* <NavPersonalSpace pages={data.personal.rootPages} /> */}
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

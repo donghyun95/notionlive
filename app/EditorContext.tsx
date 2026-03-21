@@ -1,5 +1,4 @@
 import { createContext, useContext } from 'react';
-import { Editor } from './Editor';
 
 export const EditorContext = createContext(null);
 

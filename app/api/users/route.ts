@@ -1,18 +1,19 @@
 import { NextResponse } from 'next/server';
 import { getUsers, getSidebarData, registerUser } from '@/server/users/queries';
 import { auth } from '@/lib/auth';
+import { createId } from '@paralleldrive/cuid2';
 
 export async function GET(
   request: Request,
   { params }: { params: { userId: string; parentId: string } },
 ) {
   const { searchParams } = new URL(request.url);
-
-  const userId = searchParams.get('userId');
-
-  const users = await getSidebarData(Number(userId));
-
-  return NextResponse.json(users);
+  const session = await auth();
+  if (session) {
+    const users = await getSidebarData(session?.user.id);
+    return NextResponse.json(users);
+  }
+  return NextResponse.json({ message: 'No Have User' }, { status: 400 });
 }
 
 export async function POST(request: Request) {

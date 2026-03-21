@@ -12,20 +12,27 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
+import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
 
 import {
   getSidebarData,
   getChildrenPageByParentsId,
 } from '@/server/users/queries';
+import { NextResponse } from 'next/server';
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // const sidebarData = await getSidebarData(2);
+  const session = await auth();
+  if (!session) {
+    redirect('/login');
+  }
+  const sidebarData = await getSidebarData(session?.user?.id);
+  console.log(sidebarData);
   // const childrenPages = await getChildrenPageByParentsId(5);
-  const sidebarData = null;
   return (
     <SidebarProvider>
       <AppSidebar data={sidebarData as any} />

@@ -2,28 +2,27 @@ import { Room } from '../../Room';
 import { Editor } from '../../Editor';
 import { getPagePartRooms } from '@/server/users/queries';
 import { EditorWrapper } from '@/app/EditorwWrapper';
-
+import { NextResponse } from 'next/server';
 import { TitleInput } from '@/app/TitleInput';
 import { EditorProvider } from '@/app/EditorProvider';
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 type Props = {
   params: {
-    pageId: string;
+    userId: string;
   };
 };
 
-export default async function Page({ params }: Props) {
-  const { pageId } = await params;
-  const id = Number(pageId);
-  if (!pageId || !Number.isFinite(id)) {
-    return <div>데이터가없습니다.</div>;
+export default async function Page() {
+  const session = await auth();
+  if (!session?.user) {
+    redirect('./login');
   }
   //값 수정 해야함 , session.uerId
-
-  const PageRoomData = await getPagePartRooms(2, id);
-  console.log('pageRoom Dash', PageRoomData);
+  //workspace:${workspaceId}:page:${pageId}
   return (
-    <Room data={PageRoomData}>
+    <Room id={session.user.id}>
       <EditorProvider>
         <EditorWrapper>
           <TitleInput />

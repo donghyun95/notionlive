@@ -1,13 +1,9 @@
-'use client';
-import { signOut } from 'next-auth/react';
-
-export default async function Page({ params }: any) {
-  function logout(ev) {
-    signOut();
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+export default async function Page() {
+  const session = await auth();
+  if (!session.user) {
+    redirect('/login');
   }
-  return (
-    <div>
-      <button onClick={logout}>로그아웃</button>
-    </div>
-  );
+  redirect(`./dashboard/${session.user.id}`);
 }
