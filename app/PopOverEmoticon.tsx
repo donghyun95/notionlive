@@ -59,7 +59,7 @@ export function PopOverEmoticon() {
             ) : (
               <Button
                 variant="ghost"
-                className="group px-2 h-9 opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100 border-0 outline-none 
+                className="group px-2 h-9 opacity-30 transition-opacity hover:opacity-100 group-hover:opacity-100 border-0 outline-none 
               focus-visible:ring-0 shadow-none text-muted-foreground hover:text-muted-foreground"
               >
                 <SmileIcon />

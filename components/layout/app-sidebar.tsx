@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useQuery } from '@tanstack/react-query';
 import { getSidebarData } from '@/lib/api/getSidebarData';
+import { useSession } from 'next-auth/react';
 
 // type SidebarData = {
 //   teams: any[];
@@ -260,15 +261,14 @@ import { getSidebarData } from '@/lib/api/getSidebarData';
 //     rootPages: [ [Object] ]
 //   }
 // }
-import { useParams } from 'next/navigation';
 
 export function AppSidebar({
   initialPage,
   ...props
 }: { initialPage: any } & React.ComponentProps<typeof Sidebar>) {
-  const params = useParams();
+  const { data: session, status } = useSession();
 
-  const userId = params.pageId;
+  const userId = session?.user.id;
   const { data } = useQuery({
     queryKey: ['initialPage', userId],
     queryFn: getSidebarData,

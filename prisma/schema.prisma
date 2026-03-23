@@ -76,7 +76,8 @@ model Page {
 
   // 페이지 트리 (부모-자식)
   parentId    Int?
-
+  parent    Page?  @relation("PageTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Page[] @relation("PageTree")
   // 작성자 (유저 삭제/탈퇴 대비해서 nullable)
   authorId    String?
   author      User?     @relation("PageAuthor", fields: [authorId], references: [id], onDelete: SetNull)

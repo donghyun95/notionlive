@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { ChevronRight, MoreHorizontal, Plus } from "lucide-react";
+import { useState } from 'react';
+import { ChevronRight, MoreHorizontal, Plus } from 'lucide-react';
 
 import {
   SidebarGroup,
@@ -10,12 +10,15 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from '@/components/ui/collapsible';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import { createPage } from '@/lib/api/createPage';
 
 type Page = {
   id: string;
@@ -43,11 +46,11 @@ function PageTreeNode({ page, depth }: PageTreeNodeProps) {
     try {
       setLoading(true);
       const res = await fetch(`/api/pages?parentId=${page.id}`);
-      if (!res.ok) throw new Error("Failed to fetch pages");
+      if (!res.ok) throw new Error('Failed to fetch pages');
       const result: Page[] = await res.json();
       setChildren(result);
     } catch (error) {
-      console.error("Failed to load children:", error);
+      console.error('Failed to load children:', error);
     } finally {
       setLoading(false);
     }
@@ -74,7 +77,7 @@ function PageTreeNode({ page, depth }: PageTreeNodeProps) {
 
             <SidebarMenuButton asChild className="min-w-0 h-8 flex-1 pr-2">
               <a
-                href={page.href ?? "#"}
+                href={page.href ?? '#'}
                 className="min-w-0 flex-1 truncate"
                 title={page.title}
               >
@@ -121,9 +124,31 @@ type NavPersonalSpaceProps = {
 };
 
 export function NavPersonalSpace({ pages }: NavPersonalSpaceProps) {
+  const { data: session, status } = useSession();
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: createPage,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['initialPage', session?.user.id],
+      });
+    },
+  });
+  const handleClickPersonalRootPage = () => {
+    mutation.mutate(null);
+  };
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Personal Space</SidebarGroupLabel>
+      <div className="group/row grid w-full grid-cols-[1fr_32px] items-center">
+        <span className="pl-2">Personal Space</span>
+        <button
+          onClick={handleClickPersonalRootPage}
+          type="button"
+          className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent cursor-pointer ml-auto"
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
 
       <SidebarGroupContent>
         <SidebarMenu>

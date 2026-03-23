@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/lib/password';
 import { createId } from '@paralleldrive/cuid2';
-import { auth } from '@/lib/auth';
 import { WorkspaceType, WorkspaceRole } from '@prisma/client';
 export async function getUsers() {
   return prisma.user.findMany({
