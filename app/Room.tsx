@@ -3,7 +3,7 @@
 import { ReactNode, useEffect } from 'react';
 import { LiveblocksProvider, RoomProvider } from '@liveblocks/react/suspense';
 import { useSelectedData } from './Providers/ClientDataProvider';
-
+import { ClientSideSuspense } from '@liveblocks/react/suspense';
 type RoomData = {
   id: number;
   createdAt: Date;
@@ -27,12 +27,14 @@ export function Room({ PageId, children }: any) {
 
   return (
     <LiveblocksProvider authEndpoint="/api/liveblocks-auth" throttle={16}>
-      <RoomProvider
-        id={PageId ? PageId : pageNodeID}
-        initialPresence={{ cursor: null }}
-      >
-        {children}
-      </RoomProvider>
+      <ClientSideSuspense fallback={<LoadingFallback />}>
+        <RoomProvider
+          id={PageId ? PageId : pageNodeID}
+          initialPresence={{ cursor: null }}
+        >
+          {children}
+        </RoomProvider>
+      </ClientSideSuspense>
     </LiveblocksProvider>
   );
 }

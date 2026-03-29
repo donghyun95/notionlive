@@ -69,7 +69,6 @@ function PageTreeNode({
     staleTime: 0,
     enabled: true,
   });
-  console.log(selfAndChildren);
 
   const indent = depth * INDENT_SIZE;
   const childIndent = (depth + 1) * INDENT_SIZE + TOGGLE_WIDTH;
