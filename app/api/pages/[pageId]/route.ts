@@ -3,9 +3,9 @@ import { getSelfandChildren } from '@/server/users/queries';
 import { auth } from '@/lib/auth';
 
 type RouteContext = {
-  params: {
+  params: Promise<{
     pageId: string;
-  };
+  }>;
 };
 
 export async function GET(req: NextRequest, { params }: RouteContext) {

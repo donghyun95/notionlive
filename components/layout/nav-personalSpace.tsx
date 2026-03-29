@@ -58,7 +58,8 @@ function PageTreeNode({
 }: PageTreeNodeProps) {
   //이미 페이지는 page데이터로 렌더 완료 , 자신의 자식페이지들을 렌더링하기위해 자신의 id를 넘기고 자식들 데이터를 배열로가져와서뿌려줌
   const pageNodeID = useSelectedData((state) => state.pageNodeID);
-
+  const isCursorOn = useSelectedData((state) => state.isCursorOn);
+  const setisCursorOn = useSelectedData((state) => state.setisCursorOn);
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
   //자식페이지 배열로 가져옴
@@ -72,13 +73,16 @@ function PageTreeNode({
 
   const indent = depth * INDENT_SIZE;
   const childIndent = (depth + 1) * INDENT_SIZE + TOGGLE_WIDTH;
-
+  const handleClickCursorOnOff = (ev) => {
+    if (isCursorOn) setisCursorOn(false);
+  };
   function handleOpnOpenChange() {
     setOpen((prev) => !prev);
   }
   useEffect(() => {
     setOpen(ancestorPath.has(page.id));
   }, [ancestorPath, page.id]);
+
   //onOpenChange={}
   return (
     <SidebarMenuItem className="w-full list-none">
@@ -88,6 +92,7 @@ function PageTreeNode({
         open={open}
       >
         <div
+          onClick={handleClickCursorOnOff}
           data-active={String(page.id) === pageNodeID}
           className={`group/row grid w-full grid-cols-[1fr_32px] rounded-md items-center hover:bg-gray-100 data-[active=true]:hover:bg-gray-200 data-[active=true]:bg-gray-100`}
         >

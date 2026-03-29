@@ -3,17 +3,22 @@ import { getUsers, getSidebarData, registerUser } from '@/server/users/queries';
 import { auth } from '@/lib/auth';
 import { createId } from '@paralleldrive/cuid2';
 
-export async function GET(
-  request: Request,
-  { params }: { params: { userId: string; parentId: string } },
-) {
-  const { searchParams } = new URL(request.url);
+export async function GET(request: Request) {
   const session = await auth();
-  if (session) {
-    const users = await getSidebarData(session?.user.id);
-    return NextResponse.json(users);
+  try {
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (session) {
+      if (!session?.user.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      const users = await getSidebarData(session?.user.id);
+      return NextResponse.json(users);
+    }
+  } catch {
+    return NextResponse.json({ message: 'No Have User' }, { status: 400 });
   }
-  return NextResponse.json({ message: 'No Have User' }, { status: 400 });
 }
 
 export async function POST(request: Request) {

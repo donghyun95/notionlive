@@ -1,13 +1,7 @@
 'use client';
 
 import { ReactNode, useEffect } from 'react';
-import {
-  LiveblocksProvider,
-  RoomProvider,
-  ClientSideSuspense,
-  useOthers,
-  useUpdateMyPresence,
-} from '@liveblocks/react/suspense';
+import { LiveblocksProvider, RoomProvider } from '@liveblocks/react/suspense';
 import { useSelectedData } from './Providers/ClientDataProvider';
 
 type RoomData = {

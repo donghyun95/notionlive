@@ -25,6 +25,7 @@ export function SelectedDataProvider({
   if (!storeRef.current) {
     storeRef.current = createSelectedDataStore({
       pageNodeID: String(initialPage.personal.rootPages[0].id),
+      isCursorOn: false,
     });
   }
 

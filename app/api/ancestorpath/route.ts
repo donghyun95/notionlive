@@ -3,13 +3,7 @@ import { getSelfandChildren } from '@/server/users/queries';
 import { auth } from '@/lib/auth';
 import { getPageAncestorPath } from '@/server/create/queries';
 
-type RouteContext = {
-  params: {
-    pageId: string;
-  };
-};
-
-export async function GET(req: NextRequest, { params }: RouteContext) {
+export async function GET(req: NextRequest) {
   try {
     const session = await auth();
 
