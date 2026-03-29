@@ -3,7 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { SessionProvider } from 'next-auth/react';
-
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 export default function Providers({
   children,
   session,
@@ -24,7 +24,12 @@ export default function Providers({
 
   return (
     <SessionProvider session={session}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        {process.env.NODE_ENV === 'development' && (
+          <ReactQueryDevtools initialIsOpen={false} />
+        )}
+      </QueryClientProvider>
     </SessionProvider>
   );
 }

@@ -1,12 +1,9 @@
-'use client';
-
 import { BlockNoteView } from '@blocknote/mantine';
 import { Threads } from './Threads';
 import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import { useCreateBlockNoteWithLiveblocks } from '@liveblocks/react-blocknote';
 import { TitleInput } from './TitleInput';
 import { useCreateBlockNote } from '@blocknote/react';
-import { useState } from 'react';
 
 async function uploadFile(file: File) {
   const body = new FormData();
@@ -30,7 +27,6 @@ export function Editor() {
   const editor2 = useCreateBlockNote({
     initialContent: initial,
   });
-  const [isHidden, setisHidden] = useState(false);
   const editor = useCreateBlockNoteWithLiveblocks(
     { uploadFile, schema },
     { offlineSupport_experimental: true },
@@ -39,21 +35,12 @@ export function Editor() {
   return (
     <>
       <TitleInput editor={editor} />
-
       <BlockNoteView
         editor={editor}
-        className={`editor ${isHidden ? 'hidden' : 'block'}`}
+        className={`editor`}
         editable={true}
         onChange={(editor, { getChanges }) => {
           const changes = getChanges();
-          console.log(editor.document);
-        }}
-      />
-
-      <BlockNoteView
-        editor={editor2}
-        className={`editor ${isHidden ? 'block' : 'hidden'}`}
-        onChange={(editor, { getChanges }) => {
           console.log(editor.document);
         }}
       />

@@ -21,12 +21,14 @@ import { useSession } from 'next-auth/react';
 import { createPage } from '@/lib/api/createPage';
 import { getSelfandChildrenFetch } from '@/lib/api/getSelfandChildrenFetch';
 import Link from 'next/link';
+import { useSelectedData } from '@/app/Providers/ClientDataProvider';
 
 type Page = {
   id: string;
   title: string;
   href?: string;
   hasChildren?: boolean;
+  icon: string;
 };
 type WorkspaceData = {
   workspaces: any[];
@@ -54,14 +56,19 @@ function PageTreeNode({
   depth,
   ancestorPath = new Set(),
 }: PageTreeNodeProps) {
+  //이미 페이지는 page데이터로 렌더 완료 , 자신의 자식페이지들을 렌더링하기위해 자신의 id를 넘기고 자식들 데이터를 배열로가져와서뿌려줌
+  const pageNodeID = useSelectedData((state) => state.pageNodeID);
+
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
-  const { data: childrenPages = [] } = useQuery({
+  //자식페이지 배열로 가져옴
+  const { data: selfAndChildren = { self: {}, children: [] } } = useQuery({
     queryKey: ['page', page.id],
     queryFn: () => getSelfandChildrenFetch(page.id),
     staleTime: 0,
     enabled: true,
   });
+  console.log(selfAndChildren);
 
   const indent = depth * INDENT_SIZE;
   const childIndent = (depth + 1) * INDENT_SIZE + TOGGLE_WIDTH;
@@ -80,37 +87,46 @@ function PageTreeNode({
         onOpenChange={handleOpnOpenChange}
         open={open}
       >
-        <div className="group/row grid w-full grid-cols-[1fr_32px] items-center">
+        <div
+          data-active={String(page.id) === pageNodeID}
+          className={`group/row grid w-full grid-cols-[1fr_32px] rounded-md items-center hover:bg-gray-100 data-[active=true]:hover:bg-gray-200 data-[active=true]:bg-gray-100`}
+        >
           <div
             className="flex min-w-0 items-center"
             style={{ paddingLeft: indent }}
           >
-            <div className="flex h-8 w-5 shrink-0 items-center justify-center">
+            <div className="relative flex h-8 w-8 shrink-0 items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center transition-opacity group-hover/row:opacity-0">
+                <span className="text-lg leading-none">
+                  {page.icon === null ? '📄' : page.icon}
+                </span>
+              </div>
+
               <CollapsibleTrigger asChild>
                 <button
                   type="button"
-                  className="group/trigger flex h-8 w-5 items-center justify-center rounded-sm hover:bg-sidebar-accent"
+                  className="group/trigger absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover/row:opacity-100"
                 >
                   <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]/trigger:rotate-90" />
                 </button>
               </CollapsibleTrigger>
             </div>
 
-            <SidebarMenuButton asChild className="min-w-0 h-8 flex-1 pr-2">
+            <div className="min-w-0 h-8 flex-1 pr-2 hover:bg-transparent">
               <Link
                 href={`./${session?.user.id}?PageId=${page.id}`}
-                className="min-w-0 flex-1 truncate"
+                className="pl-2 flex h-full min-w-0 flex-1 items-center truncate"
                 title={page.title}
               >
                 {page.title}
               </Link>
-            </SidebarMenuButton>
+            </div>
           </div>
 
           <div className="flex h-8 w-8 items-center justify-center">
             <button
               type="button"
-              className="flex h-8 w-8 items-center justify-center rounded-md opacity-0 transition-opacity group-hover/row:opacity-100 hover:bg-sidebar-accent cursor-pointer"
+              className="flex h-8 w-8 items-center justify-center rounded-md opacity-0 transition-opacity group-hover/row:opacity-100 cursor-pointer"
             >
               <Plus className="h-4 w-4" />
             </button>
@@ -118,9 +134,9 @@ function PageTreeNode({
         </div>
 
         <CollapsibleContent className="w-full">
-          {childrenPages && childrenPages.length > 0 && (
+          {selfAndChildren.children.length > 0 && (
             <ul className="w-full min-w-0">
-              {childrenPages.map((child) => (
+              {selfAndChildren.children.map((child) => (
                 <PageTreeNode
                   key={child.id}
                   page={child}
@@ -180,11 +196,7 @@ export function NavPersonalSpace({ pages, path = [] }: NavPersonalSpaceProps) {
       });
       return { previousPages };
     },
-    // onSuccess: () => {
-    //   queryClient.invalidateQueries({
-    //     queryKey: ['initialPage', session?.user.id],
-    //   });
-    // },
+
     onError: (_error, _vars, context) => {
       console.log('❌ 에러 발생 → 롤백');
       if (!context?.previousPages) return;
@@ -202,6 +214,7 @@ export function NavPersonalSpace({ pages, path = [] }: NavPersonalSpaceProps) {
     },
   });
   const handleClickPersonalRootPage = () => {
+    //null = 부모페이지를 누구로할것인지
     mutation.mutate(null);
   };
   return (
@@ -211,7 +224,7 @@ export function NavPersonalSpace({ pages, path = [] }: NavPersonalSpaceProps) {
         <button
           onClick={handleClickPersonalRootPage}
           type="button"
-          className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent cursor-pointer ml-auto"
+          className="flex h-8 w-8 items-center justify-center rounded-md cursor-pointer ml-auto"
         >
           <Plus className="h-4 w-4" />
         </button>

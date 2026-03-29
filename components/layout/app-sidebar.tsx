@@ -287,7 +287,6 @@ export function AppSidebar({
     initialData: initialPage,
     staleTime: 1000 * 30,
   });
-  console.log('search', searchParamsPageId ? searchParamsPageId : pageNodeID);
   const { data: ancestorPath } = useQuery({
     queryKey: [
       'ancestorPath',
@@ -299,12 +298,10 @@ export function AppSidebar({
       ),
     staleTime: 0,
   });
-  console.log('조상', ancestorPath);
   useEffect(() => {
     if (searchParamsPageId && isPositiveInt(searchParamsPageId)) {
       setPageNodeID(searchParamsPageId);
     }
-    // console.log('ancestorPath', ancestorPath);
   });
   return (
     <Sidebar className="border-r-0" {...props}>

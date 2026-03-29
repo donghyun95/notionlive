@@ -183,6 +183,17 @@ export async function getPagePartRooms(userId: string, pageId: number) {
 // }
 
 export async function getSelfandChildren(userId: string, pageId: number) {
+  const self = await prisma.page.findFirst({
+    where: {
+      id: pageId,
+      workspace: {
+        members: {
+          some: { userId },
+        },
+      },
+    },
+  });
+
   const children = await prisma.page.findMany({
     where: {
       parentId: pageId,
@@ -199,5 +210,5 @@ export async function getSelfandChildren(userId: string, pageId: number) {
     },
   });
 
-  return children;
+  return { self, children };
 }

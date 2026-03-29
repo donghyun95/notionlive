@@ -8,9 +8,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { getSelfandChildrenFetch } from '@/lib/api/getSelfandChildrenFetch';
+import { useQuery } from '@tanstack/react-query';
 import EmojiPicker from 'emoji-picker-react';
 import { useState } from 'react';
-
+import { useSelectedData } from './Providers/ClientDataProvider';
 function SmileIcon() {
   return (
     <svg
@@ -43,18 +45,25 @@ function SmileIcon() {
 }
 
 export function PopOverEmoticon() {
-  const [emoji, setEmojiData] = useState('');
+  const pageNodeID = useSelectedData((state) => state.pageNodeID);
+  const { data: selfAndChildren = { self: {}, children: [] } } = useQuery({
+    queryKey: ['page', String(pageNodeID)],
+    queryFn: () => getSelfandChildrenFetch(pageNodeID),
+    staleTime: 0,
+    enabled: true,
+  });
   const onEmojiClick = (emojiData, event) => {
-    setEmojiData(emojiData.emoji);
+    //mutation으로 데이터수정날리기
   };
+  console.log(selfAndChildren.self.icon, '이모티콘');
   return (
     <div className="emotiocnBox">
       <div className="emoticonWrapper title">
         <Popover>
           <PopoverTrigger asChild>
-            {emoji ? (
+            {selfAndChildren.self.icon ? (
               <Button variant="ghost" className="group h-14 w-14 p-0">
-                <span className="text-5xl">{emoji}</span>
+                <span className="text-5xl">{selfAndChildren.self.icon}</span>
               </Button>
             ) : (
               <Button
