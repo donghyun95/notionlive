@@ -88,33 +88,49 @@ export function PopOverEmoticon() {
   };
   useEffect(() => {
     setEmoticon(selfAndChildren.self.icon);
-  }, []);
+  }, [selfAndChildren]);
 
   return (
     <div className="emotiocnBox">
       <div className="emoticonWrapper title">
-        <Popover>
-          <PopoverTrigger asChild>
-            {selfAndChildren.self.icon ? (
-              <Button variant="ghost" className="group h-14 w-14 p-0">
-                <span className="text-5xl">{selfAndChildren.self.icon}</span>
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                className="group px-2 h-9 opacity-30 transition-opacity hover:opacity-100 group-hover:opacity-100 border-0 outline-none 
-              focus-visible:ring-0 shadow-none text-muted-foreground hover:text-muted-foreground"
-              >
-                <SmileIcon />
-                Add Icon
-              </Button>
-            )}
-          </PopoverTrigger>
-          <PopoverContent side="bottom" align="start" className="w-auto p-0">
-            <EmojiPicker onEmojiClick={onEmojiClick} />
-          </PopoverContent>
-        </Popover>
+        {selfAndChildren.role === 'VIEWER' ? (
+          <span className="text-5xl">{Emoticon}</span>
+        ) : (
+          <EmojiPopover icon={Emoticon} onEmojiClick={onEmojiClick} />
+        )}
       </div>
     </div>
+  );
+}
+
+function EmojiPopover({
+  icon,
+  onEmojiClick,
+}: {
+  icon: string | undefined;
+  onEmojiClick: (emojiData, event) => void;
+}) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        {icon ? (
+          <Button variant="ghost" className="group h-14 w-14 p-0">
+            <span className="text-5xl">{icon}</span>
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            className="group px-2 h-9 opacity-30 transition-opacity hover:opacity-100 group-hover:opacity-100 border-0 outline-none 
+              focus-visible:ring-0 shadow-none text-muted-foreground hover:text-muted-foreground"
+          >
+            <SmileIcon />
+            Add Icon
+          </Button>
+        )}
+      </PopoverTrigger>
+      <PopoverContent side="bottom" align="start" className="w-auto p-0">
+        <EmojiPicker onEmojiClick={onEmojiClick} />
+      </PopoverContent>
+    </Popover>
   );
 }

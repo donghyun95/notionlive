@@ -26,7 +26,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getSidebarData } from '@/lib/api/getSidebarData';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
@@ -34,6 +34,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { useSelectedData } from '@/app/Providers/ClientDataProvider';
 import { getAncestorPathFetch } from '@/lib/api/getAncestorPathFetch';
+import { set } from 'zod';
 // type SidebarData = {
 //   teams: any[];
 //   navMain: any[];
@@ -279,7 +280,8 @@ export function AppSidebar({
   const pageNodeID = useSelectedData((state) => state.pageNodeID);
   const setNodeopenBatch = useSelectedData((state) => state.setNodesOpenBatch);
   const setNodeOpen = useSelectedData((state) => state.setNodeOpen);
-  // console.log(`paramPageId = ${searchParamsPageId}`);
+  const setWorkspaceOpen = useSelectedData((state) => state.setWorkspaceOpen);
+  const queryClient = useQueryClient();
 
   if (!searchParamsPageId) {
   }
@@ -318,12 +320,12 @@ export function AppSidebar({
   const targetPageId = searchParamsPageId ? Number(searchParamsPageId) : null;
   useEffect(() => {
     console.log('ancestorPath', ancestorPath);
-    if (!Array.isArray(ancestorPath)) return;
+    if (!ancestorPath || !Array.isArray(ancestorPath.path)) return;
     if (!targetPageId) return;
 
     if (lastAppliedPageIdRef.current === targetPageId) return;
-
-    setNodeopenBatch(ancestorPath, true);
+    setNodeopenBatch(ancestorPath.path, true);
+    setNodeOpen(`workspace-${ancestorPath.workspaceID}`, true);
     lastAppliedPageIdRef.current = targetPageId;
   }, [targetPageId, ancestorPath]);
 

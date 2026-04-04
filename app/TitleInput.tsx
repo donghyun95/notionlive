@@ -13,8 +13,9 @@ type UpdateTitlePayload = {
 
 export function TitleInput({ editor }: any) {
   const queryClient = useQueryClient();
-  const pageNodeID = useSelectedData((state) => state.pageNodeID);
   const [title, setTitle] = useState('');
+  const pageNodeID = useSelectedData((state) => state.pageNodeID);
+
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { data: selfAndChildren = { self: {}, children: [] } } = useQuery({
     queryKey: ['page', Number(pageNodeID)],
@@ -73,14 +74,26 @@ export function TitleInput({ editor }: any) {
   }, [pageNodeID, selfAndChildren.self.title]);
   return (
     <div className="titleWrapper">
-      <input
+      {selfAndChildren.role === 'VIEWER' ? (
+        <h1 className="title">{title}</h1>
+      ) : (
+        <input
+          className="title"
+          onKeyDown={handleKeyDown}
+          onChange={handleChange}
+          maxLength={30}
+          placeholder="Please enter the title"
+          value={title ?? ''}
+        ></input>
+      )}
+      {/* <input
         className="title"
         onKeyDown={handleKeyDown}
         onChange={handleChange}
         maxLength={30}
         placeholder="Please enter the title"
         value={title ?? ''}
-      ></input>
+      ></input> */}
     </div>
   );
 }

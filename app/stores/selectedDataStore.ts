@@ -11,7 +11,6 @@ export type SelectedDataState = {
 export type SelectedDataActions = {
   setPageNodeID: (v: number) => void;
   setisCursorOn: (v: boolean) => void;
-  setAncestorPath: (v: number[]) => void;
   setNodeOpen: (id: number | string, isOpen: boolean) => void;
   setNodesOpenBatch: (ids: number[], isOpen: boolean) => void;
 };
@@ -27,14 +26,6 @@ export const createSelectedDataStore = (initState: SelectedDataState) => {
         return { pageNodeID: v };
       }),
     setisCursorOn: (v) => set({ isCursorOn: v }),
-    setAncestorPath: (nextPath) =>
-      set((state) => {
-        if (isSamePathIgnoreOrder(state.ancestorPath, nextPath)) {
-          return state;
-        }
-
-        return { ancestorPath: nextPath };
-      }),
     setNodeOpen: (id, isOpen) =>
       set((state) => {
         const prev = state.openMap[id] ?? false;
@@ -63,18 +54,3 @@ export const createSelectedDataStore = (initState: SelectedDataState) => {
       }),
   }));
 };
-
-function isSamePathIgnoreOrder(a: number[], b: number[]) {
-  if (a.length !== b.length) return false;
-
-  const setA = new Set(a);
-  const setB = new Set(b);
-
-  if (setA.size !== setB.size) return false;
-
-  for (const value of setA) {
-    if (!setB.has(value)) return false;
-  }
-
-  return true;
-}

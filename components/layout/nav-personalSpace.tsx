@@ -80,14 +80,14 @@ function PageTreeNode({ page, depth }: PageTreeNodeProps) {
       await queryClient.cancelQueries({ queryKey });
 
       const previous = queryClient.getQueryData(queryKey);
-
+      const date = new Date('2024-12-25');
       const dummyChild = {
-        id: Date.now(),
+        id: 0,
         title: 'Untitled',
         icon: '📄',
         parentId,
-        createdAt: new Date().toString(),
-        updatedAt: new Date().toString(),
+        createdAt: date,
+        updatedAt: date,
       };
 
       queryClient.setQueryData(queryKey, (old: any) => {

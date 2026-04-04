@@ -92,7 +92,7 @@ export async function createPage(userID: string, parentID: number | null) {
 export async function getPageAncestorPath(
   userId: string,
   pageId: number,
-): Promise<[]> {
+): Promise<{}> {
   const path: [] = [];
 
   let current = await prisma.page.findFirst({
@@ -114,7 +114,7 @@ export async function getPageAncestorPath(
       order: true,
     },
   });
-
+  const workspaceID = current?.workspaceId;
   if (!current) {
     throw new Error(`Page not found: ${pageId}`);
   }
@@ -138,7 +138,7 @@ export async function getPageAncestorPath(
     path.push(current.id);
   }
 
-  return path;
+  return { path, workspaceID };
 }
 
 export async function updateTitle(pageId: number, value: string) {

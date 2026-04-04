@@ -225,6 +225,26 @@ export async function getSelfandChildren(userId: string, pageId: number) {
       order: 'asc',
     },
   });
+  const page = await prisma.page.findFirst({
+    where: { id: pageId },
+    select: { workspaceId: true },
+  });
 
-  return { self, children };
+  if (!page) {
+    throw new Error('페이지 없음');
+  }
+  const membership = await prisma.workspaceMember.findUnique({
+    where: {
+      userId_workspaceId: {
+        userId,
+        workspaceId: page.workspaceId,
+      },
+    },
+    select: {
+      role: true,
+    },
+  });
+
+  const role = membership?.role;
+  return { self, children, role };
 }

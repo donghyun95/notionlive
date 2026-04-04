@@ -74,6 +74,7 @@ export function PageTreeNode({ page, depth }: PageTreeNodeProps) {
   const isOpen = useSelectedData((state) => state.openMap[page.id] ?? false);
   const setNodeOpen = useSelectedData((state) => state.setNodeOpen);
   const setisCursorOn = useSelectedData((state) => state.setisCursorOn);
+
   const { data: session, status } = useSession();
   //자식페이지 배열로 가져옴
   const { data: selfAndChildren } = useQuery({
@@ -95,14 +96,14 @@ export function PageTreeNode({ page, depth }: PageTreeNodeProps) {
       await queryClient.cancelQueries({ queryKey });
 
       const previous = queryClient.getQueryData(queryKey);
-
+      const date = new Date('2024-12-25');
       const dummyChild = {
-        id: Date.now(),
+        id: 0,
         title: 'Untitled',
         icon: '📄',
         parentId: variables.parentId,
-        createdAt: new Date().toString(),
-        updatedAt: new Date().toString(),
+        createdAt: date,
+        updatedAt: date,
       };
 
       queryClient.setQueryData(queryKey, (old: any) => {
@@ -260,6 +261,7 @@ function WorkSpaceFolder({
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const setNodeOpen = useSelectedData((state) => state.setNodeOpen);
   const createChildMutation = useMutation({
     mutationFn: createWorkSpacePageFetch,
 
@@ -271,7 +273,9 @@ function WorkSpaceFolder({
       }
     },
   });
-
+  const isOpen = useSelectedData(
+    (state) => state.openMap[`workspace-${id}`] ?? false,
+  );
   const handleCreateRootPage = () => {
     createChildMutation.mutate({
       workspaceID: id, // 또는 따로 workspaceId prop으로 받는 게 더 깔끔
@@ -285,12 +289,19 @@ function WorkSpaceFolder({
   const handleOpenChange = (ev) => {
     setOpen(!open);
   };
+  const handleOpenFolder = (nextOpen: boolean) => {
+    setNodeOpen(`workspace-${id}`, nextOpen);
+  };
   return (
     <>
       <SidebarGroupContent>
         <SidebarMenu>
           <SidebarMenuItem className="w-full list-none">
-            <Collapsible className="w-full">
+            <Collapsible
+              className="w-full"
+              open={isOpen}
+              onOpenChange={handleOpenFolder}
+            >
               <div className="group/row grid w-full grid-cols-[1fr_32px_32px] items-center rounded-md hover:bg-gray-100">
                 <div className="flex min-w-0 items-center">
                   <div className="flex h-8 w-5 shrink-0 items-center justify-center">
