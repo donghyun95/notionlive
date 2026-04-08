@@ -5,6 +5,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { WorkspaceSettings } from './workspaceModalContent';
+import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 export function WorkspaceSettingsDialog({
   open,
   onOpenChange,
@@ -13,24 +15,13 @@ export function WorkspaceSettingsDialog({
 }: any) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white text-black border-gray-200 dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-800">
-        <DialogHeader>
-          <DialogTitle>워크스페이스 설정</DialogTitle>
-          <DialogDescription>
-            워크스페이스 이름, 멤버, 권한 등을 관리합니다.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-6">
-          <WorkspaceNameSection
-            workspaceId={workspaceId}
-            workspaceName={workspaceName}
-          />
-
-          <WorkspaceMembersSection workspaceId={workspaceId} />
-
-          <WorkspaceDangerZoneSection workspaceId={workspaceId} />
-        </div>
+      <DialogHeader>
+        <VisuallyHidden.Root>
+          <DialogTitle>Workspace Settings</DialogTitle>
+        </VisuallyHidden.Root>
+      </DialogHeader>
+      <DialogContent className="bg-white text-black border-gray-200 dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-800 rounded-2xl">
+        <WorkspaceSettings />
       </DialogContent>
     </Dialog>
   );

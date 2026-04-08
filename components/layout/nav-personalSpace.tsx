@@ -1,7 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ChevronRight, MoreHorizontal, Plus } from 'lucide-react';
+import {
+  ChevronRight,
+  MoreHorizontal,
+  Plus,
+  Folder,
+  FolderOpen,
+} from 'lucide-react';
 
 import {
   SidebarGroup,
@@ -261,30 +267,46 @@ export function NavPersonalSpace({ pages }: NavPersonalSpaceProps) {
   };
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <div className="group/row grid w-full grid-cols-[1fr_32px] items-center">
-        <span className="pl-2 text-sm">Personal Space</span>
-        <button
-          onClick={handleClickPersonalRootPage}
-          type="button"
-          className="flex h-8 w-8 items-center justify-center rounded-md cursor-pointer ml-auto"
-        >
-          <Plus className="h-4 w-4" />
-        </button>
-      </div>
+      <Collapsible defaultOpen className="w-full group/collapsible">
+        <div className="group/row grid w-full grid-cols-[1fr_32px] items-center">
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              className="group/trigger flex h-8 items-center gap-2 rounded-sm px-2 hover:bg-sidebar-accent"
+            >
+              <div className="flex h-[18px] w-[18px]">
+                <Folder className="h-[18px] w-[18px] text-yellow-500 fill-yellow-200 group-data-[state=open]/trigger:hidden" />
+                <FolderOpen className="h-[18px] w-[18px] text-yellow-500 fill-yellow-200 hidden group-data-[state=open]/trigger:block" />
+              </div>
+              <span className="text-sm">Personl Space</span>
+            </button>
+          </CollapsibleTrigger>
 
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {pages.map((page) => (
-            <PageTreeNode key={page.id} page={page} depth={0} />
-          ))}
-          <SidebarMenuItem>
-            <SidebarMenuButton className="text-sidebar-foreground/70">
-              <MoreHorizontal />
-              <span>More</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarGroupContent>
+          <button
+            onClick={handleClickPersonalRootPage}
+            type="button"
+            className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center rounded-md"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
+
+        <CollapsibleContent>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {pages.map((page) => (
+                <PageTreeNode key={page.id} page={page} depth={0} />
+              ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton className="text-sidebar-foreground/70">
+                  <MoreHorizontal />
+                  <span>More</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </CollapsibleContent>
+      </Collapsible>
     </SidebarGroup>
   );
 }

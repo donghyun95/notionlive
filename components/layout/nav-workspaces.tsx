@@ -1,7 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronRight, MoreHorizontal, Plus } from 'lucide-react';
+import {
+  ChevronRight,
+  MoreHorizontal,
+  Plus,
+  Folder,
+  FolderOpen,
+} from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import {
   SidebarGroup,
@@ -231,24 +237,43 @@ export function NavWorkspaces({ workspaces, userId }: NavWorkspacesProps) {
   });
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <div className="group/row grid w-full grid-cols-[1fr_32px] items-center">
-        <span className="pl-2 text-sm">Workspace</span>
-        <button
-          onClick={() => WorkspaceAddMutation.mutate()}
-          type="button"
-          className="flex h-8 w-8 items-center justify-center rounded-md cursor-pointer ml-auto"
-        >
-          <Plus className="h-4 w-4" />
-        </button>
-      </div>
-      {workspaces.map((workspace) => (
-        <WorkSpaceFolder
-          key={workspace.id}
-          workSpaceName={workspace.name}
-          rootPage={workspace.rootPages}
-          id={workspace.id}
-        />
-      ))}
+      <Collapsible defaultOpen className="group/workspace w-full">
+        <div className="grid w-full grid-cols-[1fr_32px] items-center">
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              className="group/trigger flex h-8 items-center gap-2 rounded-sm px-2 hover:bg-sidebar-accent"
+            >
+              <div className="flex h-[18px] w-[18px]">
+                <Folder className="h-[18px] w-[18px] text-yellow-500 fill-yellow-200 group-data-[state=open]/trigger:hidden" />
+                <FolderOpen className="h-[18px] w-[18px] text-yellow-500 fill-yellow-200 hidden group-data-[state=open]/trigger:block" />
+              </div>
+              <span className="text-sm">Workspaces</span>
+            </button>
+          </CollapsibleTrigger>
+
+          <button
+            onClick={() => WorkspaceAddMutation.mutate()}
+            type="button"
+            className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center rounded-md"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
+
+        <CollapsibleContent>
+          <div className="mt-1 space-y-1">
+            {workspaces.map((workspace) => (
+              <WorkSpaceFolder
+                key={workspace.id}
+                workSpaceName={workspace.name}
+                rootPage={workspace.rootPages}
+                id={workspace.id}
+              />
+            ))}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </SidebarGroup>
   );
 }
@@ -307,20 +332,20 @@ function WorkSpaceFolder({
             >
               <div className="group/row grid w-full grid-cols-[1fr_32px_32px] items-center rounded-md hover:bg-gray-100">
                 <div className="flex min-w-0 items-center">
-                  <div className="flex h-8 w-5 shrink-0 items-center justify-center">
+                  <div className="flex min-w-0 items-center">
                     <CollapsibleTrigger asChild>
-                      <button
-                        type="button"
-                        className="group/trigger flex h-8 w-5 items-center justify-center rounded-sm hover:bg-sidebar-accent"
-                      >
-                        <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]/trigger:rotate-90" />
+                      <button className="group/trigger flex w-full items-center">
+                        <div className="flex h-8 w-5 shrink-0 items-center justify-center">
+                          <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]/trigger:rotate-90" />
+                        </div>
+
+                        <div className="px-2 flex-1 min-w-0 cursor-pointer">
+                          <span className="block truncate text-sm font-medium leading-none">
+                            {workSpaceName || 'My Workspace'}
+                          </span>
+                        </div>
                       </button>
                     </CollapsibleTrigger>
-                  </div>
-                  <div className="px-2 flex-1 min-w-0 cursor-pointer">
-                    <a className="block truncate text-sm font-medium leading-none">
-                      {workSpaceName || 'My Workspace'}
-                    </a>
                   </div>
                 </div>
                 <div className="flex h-8 w-8 items-center justify-center">

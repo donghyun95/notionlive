@@ -1,5 +1,9 @@
 'use client';
-import { LiveblocksProvider, RoomProvider } from '@liveblocks/react/suspense';
+import {
+  LiveblocksProvider,
+  RoomProvider,
+  ClientSideSuspense,
+} from '@liveblocks/react/suspense';
 
 import { ReadOnlyPopOverEmoticon } from '@/app/share/[token]/ReadOnlyPopOverEmoticon';
 import { ReadOnlyTitle } from '@/app/share/[token]/ReadOnlyTitleInput';

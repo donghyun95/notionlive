@@ -12,4 +12,10 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   }
+  {
+  "javascript.updateImportsOnPaste.enabled": true,
+  "editor.pasteAs.preferences": [
+    "text.updateImports"
+  ]
+}
 }

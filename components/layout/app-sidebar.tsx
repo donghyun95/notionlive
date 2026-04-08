@@ -34,238 +34,12 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { useSelectedData } from '@/app/Providers/ClientDataProvider';
 import { getAncestorPathFetch } from '@/lib/api/getAncestorPathFetch';
+
 import { set } from 'zod';
-// type SidebarData = {
-//   teams: any[];
-//   navMain: any[];
-//   workspaces: any[];
-//   favorites: any[];
-//   navSecondary: any[];
-// };
+import { SidebarUtilities } from './nav-sidebarUtilities';
+import { Separator } from '../ui/separator';
+import { SidebarUserInfo } from './nav-sidebarUserInfo';
 
-// This is sample data.
-// const data = {
-//   teams: [
-//     {
-//       name: "Acme Inc",
-//       logo: Command,
-//       plan: "Enterprise",
-//     },
-//     {
-//       name: "Acme Corp.",
-//       logo: AudioWaveform,
-//       plan: "Startup",
-//     },
-//     {
-//       name: "Evil Corp.",
-//       logo: Command,
-//       plan: "Free",
-//     },
-//   ],
-//   navMain: [
-//     {
-//       title: "Search",
-//       url: "#",
-//       icon: Search,
-//     },
-
-//     {
-//       title: "Home",
-//       url: "#",
-//       icon: Home,
-//       isActive: true,
-//     },
-//   ],
-//   navSecondary: [
-//     {
-//       title: "Settings",
-//       url: "#",
-//       icon: Settings2,
-//     },
-//     {
-//       title: "Trash",
-//       url: "#",
-//       icon: Trash2,
-//     },
-//     {
-//       title: "Help",
-//       url: "#",
-//       icon: MessageCircleQuestion,
-//     },
-//   ],
-//   favorites: [
-//     {
-//       name: "Project Management & Task Tracking",
-//       url: "#",
-//       emoji: "📊",
-//     },
-//     {
-//       name: "Family Recipe Collection & Meal Planning",
-//       url: "#",
-//       emoji: "🍳",
-//     },
-//     {
-//       name: "Fitness Tracker & Workout Routines",
-//       url: "#",
-//       emoji: "💪",
-//     },
-//     {
-//       name: "Book Notes & Reading List",
-//       url: "#",
-//       emoji: "📚",
-//     },
-//     {
-//       name: "Sustainable Gardening Tips & Plant Care",
-//       url: "#",
-//       emoji: "🌱",
-//     },
-//     {
-//       name: "Language Learning Progress & Resources",
-//       url: "#",
-//       emoji: "🗣️",
-//     },
-//     {
-//       name: "Home Renovation Ideas & Budget Tracker",
-//       url: "#",
-//       emoji: "🏠",
-//     },
-//     {
-//       name: "Personal Finance & Investment Portfolio",
-//       url: "#",
-//       emoji: "💰",
-//     },
-//     {
-//       name: "Movie & TV Show Watchlist with Reviews",
-//       url: "#",
-//       emoji: "🎬",
-//     },
-//     {
-//       name: "Daily Habit Tracker & Goal Setting",
-//       url: "#",
-//       emoji: "✅",
-//     },
-//   ],
-//   workspaces: [
-//     {
-//       name: "Personal Life Management",
-//       emoji: "🏠",
-//       pages: [
-//         {
-//           name: "Daily Journal & Reflection",
-//           url: "#",
-//           emoji: "📔",
-//         },
-//         {
-//           name: "Health & Wellness Tracker",
-//           url: "#",
-//           emoji: "🍏",
-//         },
-//         {
-//           name: "Personal Growth & Learning Goals",
-//           url: "#",
-//           emoji: "🌟",
-//         },
-//       ],
-//     },
-//     {
-//       name: "Professional Development",
-//       emoji: "💼",
-//       pages: [
-//         {
-//           name: "Career Objectives & Milestones",
-//           url: "#",
-//           emoji: "🎯",
-//         },
-//         {
-//           name: "Skill Acquisition & Training Log",
-//           url: "#",
-//           emoji: "🧠",
-//         },
-//         {
-//           name: "Networking Contacts & Events",
-//           url: "#",
-//           emoji: "🤝",
-//         },
-//       ],
-//     },
-//     {
-//       name: "Creative Projects",
-//       emoji: "🎨",
-//       pages: [
-//         {
-//           name: "Writing Ideas & Story Outlines",
-//           url: "#",
-//           emoji: "✍️",
-//         },
-//         {
-//           name: "Art & Design Portfolio",
-//           url: "#",
-//           emoji: "🖼️",
-//         },
-//         {
-//           name: "Music Composition & Practice Log",
-//           url: "#",
-//           emoji: "🎵",
-//         },
-//       ],
-//     },
-//     {
-//       name: "Home Management",
-//       emoji: "🏡",
-//       pages: [
-//         {
-//           name: "Household Budget & Expense Tracking",
-//           url: "#",
-//           emoji: "💰",
-//         },
-//         {
-//           name: "Home Maintenance Schedule & Tasks",
-//           url: "#",
-//           emoji: "🔧",
-//         },
-//         {
-//           name: "Family Calendar & Event Planning",
-//           url: "#",
-//           emoji: "📅",
-//         },
-//       ],
-//     },
-//     {
-//       name: "Travel & Adventure",
-//       emoji: "",
-//       pages: [
-//         {
-//           name: "Trip Planning & Itineraries",
-//           url: "#",
-//           emoji: "🗺️",
-//         },
-//         {
-//           name: "Travel Bucket List & Inspiration",
-//           url: "#",
-//           emoji: "🌎",
-//         },
-//         {
-//           name: "Travel Journal & Photo Gallery",
-//           url: "#",
-//           emoji: "📸",
-//         },
-//       ],
-//     },
-//   ],
-// };
-// {
-//   workspaces: [],
-//   personal: {
-//     workspace: {
-//       id: 2,
-//       name: "slslsl's Personal WorkSpace",
-//       type: 'PERSONAL',
-//       createdAt: 2026-03-21T06:59:22.125Z,
-//       updatedAt: 2026-03-21T06:59:22.125Z
-//     },
-//     rootPages: [ [Object] ]
-//   }
-// }
 const isPositiveInt = (n) => Number.isInteger(n) && n > 0;
 
 export function AppSidebar({
@@ -329,13 +103,13 @@ export function AppSidebar({
 
   return (
     <Sidebar className="border-r-0" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={user.workspaces} />
-        {/* <NavMain items={data.navMain} /> */}
+      <SidebarHeader className="px-2 py-2">
+        <SidebarUserInfo />
       </SidebarHeader>
       <SidebarContent>
+        <SidebarUtilities />
+        <Separator className="my-2 bg-stone-200" />
         <NavWorkspaces workspaces={user.workspaces} userId={userId} />
-        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
         <NavPersonalSpace pages={user.personal.rootPages} />
       </SidebarContent>
       <SidebarRail />

@@ -1,7 +1,6 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-
 const ReadOnlyEditor = dynamic(
   () => import('./ReadOnlyEditor').then((m) => m.ReadOnlyEditor),
   {

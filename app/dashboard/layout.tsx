@@ -22,6 +22,8 @@ import {
 import { NextResponse } from 'next/server';
 import { SelectedDataProvider } from '../Providers/ClientDataProvider';
 import { getPageAncestorPath } from '@/server/create/queries';
+import { Input } from '@/components/ui/input';
+import { Check, Search } from 'lucide-react';
 export default async function RootLayout({
   children,
 }: {
@@ -40,7 +42,7 @@ export default async function RootLayout({
         <AppSidebar initialPage={sidebarData as any} />
         <SidebarInset>
           <header className="sticky top-0 z-50 flex h-14 shrink-0 items-center gap-2 bg-white">
-            <div className="flex flex-1 items-center gap-2 px-3">
+            <div className="flex items-center gap-2 px-3">
               <SidebarTrigger />
               <Separator
                 orientation="vertical"
@@ -56,6 +58,7 @@ export default async function RootLayout({
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
+            <SearchBar />
             <div className="ml-auto px-3">
               <NavActions />
             </div>
@@ -64,5 +67,19 @@ export default async function RootLayout({
         </SidebarInset>
       </SidebarProvider>
     </SelectedDataProvider>
+  );
+}
+function SearchBar() {
+  return (
+    <div className="flex-1 max-w-md mx-4">
+      <div className="relative group">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 group-focus-within:text-stone-600 transition-colors" />
+        <Input
+          type="search"
+          placeholder="Search"
+          className="w-full h-8 pl-9 bg-stone-100 border-none focus-visible:ring-1 focus-visible:ring-stone-300 rounded-md text-sm"
+        />
+      </div>
+    </div>
   );
 }

@@ -24,6 +24,34 @@ enum WorkspaceRole {
   MEMBER
   VIEWER
 }
+enum WorkspaceInviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model WorkspaceInvite {
+  id            String                 @id @default(cuid())
+
+  workspaceId   Int
+  inviterId     String
+  inviteeUserId String
+
+  role          WorkspaceRole          @default(MEMBER)
+  status        WorkspaceInviteStatus  @default(PENDING)
+
+  respondedAt   DateTime?
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  workspace     Workspace              @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  inviter       User                   @relation("WorkspaceInviteInviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  invitee       User                   @relation("WorkspaceInviteInvitee", fields: [inviteeUserId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([inviteeUserId])
+  @@index([workspaceId, inviteeUserId])
+}
 
 model User {
   id            String    @id @default(cuid())
@@ -32,6 +60,8 @@ model User {
   name        String?
   image       String?
   emailVerified DateTime?
+  sentWorkspaceInvites     WorkspaceInvite[] @relation("WorkspaceInviteInviter")
+  receivedWorkspaceInvites WorkspaceInvite[] @relation("WorkspaceInviteInvitee")
   accounts      Account[]
   sessions      Session[]
 
@@ -52,6 +82,7 @@ model Workspace {
 
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
+  invites   WorkspaceInvite[]
 }
 
 model WorkspaceMember {

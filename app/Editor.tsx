@@ -5,11 +5,15 @@ import { BlockNoteView } from '@blocknote/mantine';
 import { Threads } from './Threads';
 import { useSelectedData } from './Providers/ClientDataProvider';
 import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
-import { useCreateBlockNoteWithLiveblocks } from '@liveblocks/react-blocknote';
+import {
+  useCreateBlockNoteWithLiveblocks,
+  useIsEditorReady,
+} from '@liveblocks/react-blocknote';
 import { TitleInput } from './TitleInput';
 import { useCreateBlockNote } from '@blocknote/react';
 import { getSelfandChildrenFetch } from '@/lib/api/getSelfandChildrenFetch';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 async function uploadFile(file: File) {
   const body = new FormData();
   body.append('file', file);
@@ -42,10 +46,7 @@ export function Editor() {
     { uploadFile, schema },
     { offlineSupport_experimental: true },
   );
-  useEffect(() => {
-    console.log('Editor mount');
-    return () => console.log('Editor unmount');
-  }, []);
+  const ready = useIsEditorReady();
   return (
     <>
       <TitleInput editor={editor} />
