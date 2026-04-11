@@ -19,6 +19,7 @@ export default function FloatingCursor({
         zIndex: 9999,
         transform: `translate3d(calc(var(--rect-left) + ${x} * var(--rect-width)), calc(var(--rect-top) + ${y} * var(--rect-height)), 0)`,
         willChange: 'transform',
+        transition: 'transform 0.1s ease',
       }}
     >
       <div
