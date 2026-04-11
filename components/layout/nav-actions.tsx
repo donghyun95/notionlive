@@ -48,26 +48,6 @@ import { togglePublishFetch } from '@/lib/api/togglePublishFetch';
 import { is } from 'zod/v4/locales';
 import { Input } from '@/components/ui/input';
 import { PublishButton } from './publishbutton';
-const data = [
-  [
-    {
-      label: 'Move to Trash',
-      icon: Trash2,
-    },
-  ],
-  [
-    {
-      label: 'Version History',
-      icon: GalleryVerticalEnd,
-    },
-  ],
-  [
-    {
-      label: 'Export PDF',
-      icon: FileText,
-    },
-  ],
-];
 
 export function NavActions() {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -97,21 +77,41 @@ export function NavActions() {
         >
           <Sidebar collapsible="none" className="bg-transparent">
             <SidebarContent>
-              {data.map((group, index) => (
-                <SidebarGroup key={index} className="border-b last:border-none">
-                  <SidebarGroupContent className="gap-0">
-                    <SidebarMenu>
-                      {group.map((item, index) => (
-                        <SidebarMenuItem key={index}>
-                          <SidebarMenuButton>
-                            <item.icon /> <span>{item.label}</span>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))}
-                    </SidebarMenu>
-                  </SidebarGroupContent>
-                </SidebarGroup>
-              ))}
+              <SidebarGroup className="border-b last:border-none">
+                <SidebarGroupContent className="gap-0">
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton>
+                        <Trash2 /> <span>Move to Trash</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+
+              <SidebarGroup className="border-b last:border-none">
+                <SidebarGroupContent className="gap-0">
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton>
+                        <GalleryVerticalEnd /> <span>Version History</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+
+              <SidebarGroup className="border-b last:border-none">
+                <SidebarGroupContent className="gap-0">
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton>
+                        <FileText /> <span>Export PDF</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
             </SidebarContent>
           </Sidebar>
         </PopoverContent>
