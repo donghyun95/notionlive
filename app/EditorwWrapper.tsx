@@ -14,11 +14,9 @@ import {
 import FloatingCursor from './FloatingCursor';
 import { PopOverEmoticon } from './PopOverEmoticon';
 import { useSelectedData } from './Providers/ClientDataProvider';
-
-import { useCreateBlockNote } from '@blocknote/react';
 import { getSelfandChildrenFetch } from '@/lib/api/getSelfandChildrenFetch';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { BlockNoteView } from '@/node_modules/@blocknote/react/mantine/types/src';
+
 import { TitleInput } from './TitleInput';
 
 import { ClientOnlyEditor } from './ClientOnlyEditor';
@@ -49,11 +47,11 @@ const CursorLayer = memo(function CursorLayer({ propsRect }) {
         />
       ));
   }, [others, propsRect]);
-  if (others.length === 0) return <></>;
+  if (others.length === 0) return null;
   return <>{cursorElements}</>;
 });
 
-export function EditorWrapper() {
+export function EditorWrapper({ children }) {
   const isCursorOn = useSelectedData((state) => state.isCursorOn);
   const setisCursorOn = useSelectedData((state) => state.setisCursorOn);
   const pageNodeID = useSelectedData((state) => state.pageNodeID);
@@ -63,7 +61,7 @@ export function EditorWrapper() {
     staleTime: 0,
     enabled: true,
   });
-
+  // console.log('에디터', editor);
   // const ready = useIsEditorReady();
   const contentRef = useRef<HTMLDivElement>(null);
   const [rect, setRect] = useState({
@@ -74,6 +72,36 @@ export function EditorWrapper() {
   });
   const role = selfAndChildren.self?.role;
   const updateMyPresence = useUpdateMyPresence();
+  const updateRect = (el) => {
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    setRect((prev) => {
+      if (
+        prev.width === r.width &&
+        prev.height === r.height &&
+        prev.left === r.left &&
+        prev.top === r.top
+      ) {
+        return prev;
+      }
+
+      return {
+        width: r.width,
+        height: r.height,
+        left: r.left,
+        top: r.top,
+      };
+    });
+  };
+  const debouncedUpdateRect = useMemo(
+    () =>
+      debounce(() => {
+        if (!contentRef.current) return;
+        updateRect(contentRef.current);
+        console.log('디바운스실행');
+      }, 1000),
+    [],
+  );
 
   const throttledUpdate = useMemo(
     () =>
@@ -93,6 +121,7 @@ export function EditorWrapper() {
       const x = (e.clientX - r.left) / r.width;
       const y = (e.clientY - r.top) / r.height;
       throttledUpdate(x, y);
+      console.log(y);
     },
     [throttledUpdate],
   );
@@ -103,72 +132,50 @@ export function EditorWrapper() {
   useLayoutEffect(() => {
     const el = contentRef.current;
     if (!el) return;
-
-    let frame = null;
-
-    const updateRect = () => {
-      if (frame) return;
-
-      frame = requestAnimationFrame(() => {
-        const r = el.getBoundingClientRect();
-
-        setRect((prev) => {
-          if (
-            prev.width === r.width &&
-            prev.height === r.height &&
-            prev.left === r.left &&
-            prev.top === r.top
-          ) {
-            return prev;
-          }
-
-          return {
-            width: r.width,
-            height: r.height,
-            left: r.left,
-            top: r.top,
-          };
-        });
-
-        frame = null;
-      });
-    };
-
-    updateRect();
-
-    const observer = new ResizeObserver(updateRect);
-    observer.observe(el);
-
-    window.addEventListener('scroll', updateRect);
-    window.addEventListener('resize', updateRect);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('scroll', updateRect);
-      window.removeEventListener('resize', updateRect);
-    };
+    updateRect(el);
   }, []);
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!isCursorOn) setisCursorOn(true);
     }, 3000);
+    const el = contentRef.current;
+    console.log(el);
     return () => clearTimeout(timer);
   }, [setisCursorOn]);
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    updateRect(el);
+    window.addEventListener('scroll', debouncedUpdateRect);
+    window.addEventListener('resize', debouncedUpdateRect);
+
+    return () => {
+      window.removeEventListener('scroll', debouncedUpdateRect);
+      window.removeEventListener('resize', debouncedUpdateRect);
+    };
+  }, []);
   return (
     <>
       <div className="relative page">
         <PopOverEmoticon />
-        <TitleInput />
+
         <div
           ref={contentRef}
           onPointerMove={handlePointerMove}
           onPointerLeave={handlePointerLeave}
           className="mx-auto w-[800px] relative"
         >
-          <ClientOnlyEditor role={role} />
+          {children}
         </div>
       </div>
       {isCursorOn && <CursorLayer propsRect={rect} />}
     </>
   );
+}
+function debounce(fn, delay) {
+  let timer;
+  return () => {
+    clearTimeout(timer);
+    timer = setTimeout(fn, delay);
+  };
 }

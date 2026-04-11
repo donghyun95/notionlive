@@ -1,10 +1,10 @@
 'use client';
-import { BlockNoteView } from '@/node_modules/@blocknote/react/mantine/types/src';
 import {
   useCreateBlockNoteWithLiveblocks,
   useIsEditorReady,
 } from '@liveblocks/react-blocknote';
 import { EditorSkeleton } from '../../EditorSkeleton';
+import { BlockNoteView } from '@blocknote/mantine';
 
 export function ReadOnlyEditor({ pagenodeID }: { pagenodeID: number }) {
   const editor = useCreateBlockNoteWithLiveblocks();

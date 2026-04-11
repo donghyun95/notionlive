@@ -1,12 +1,8 @@
-import { Editor } from '../../Editor';
+import { ClientOnlyEditor } from '@/app/ClientOnlyEditor';
 import { Room } from '../../Room';
 import { EditorWrapper } from '@/app/EditorwWrapper';
 import { auth } from '@/lib/auth';
 import { redirect, notFound } from 'next/navigation';
-import { getPageAncestorPath } from '@/server/create/queries';
-import { ClientOnlyEditor } from '@/app/ClientOnlyEditor';
-import { EditorProvider } from '@/app/EditorProvider';
-//initialData 에서 RootPage[] 0번쨰꺼의 데이터를 store에 밀어넣어준다.
 export default async function Page({
   params,
   searchParams,
@@ -34,9 +30,9 @@ export default async function Page({
   //Room id 에 전역에서 선택된 page값 넣어주기
   return (
     <Room PageId={PageId}>
-      <EditorProvider>
-        <EditorWrapper></EditorWrapper>
-      </EditorProvider>
+      <EditorWrapper>
+        <ClientOnlyEditor role={'VIEWER'} />
+      </EditorWrapper>
     </Room>
   );
 }

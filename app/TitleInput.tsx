@@ -4,15 +4,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState, useRef } from 'react';
 import { useSelectedData } from './Providers/ClientDataProvider';
 import { updateTitleANDIcon } from '@/lib/api/updateTitleANDIcon';
-import { useEditor } from './EditorProvider';
 type UpdateTitlePayload = {
   pageID: number;
   title: string | undefined;
   icon: string | undefined;
 };
 
-export function TitleInput() {
-  const editor = useEditor();
+export function TitleInput({ editor }) {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
   const pageNodeID = useSelectedData((state) => state.pageNodeID);

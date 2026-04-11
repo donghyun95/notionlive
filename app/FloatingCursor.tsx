@@ -9,6 +9,7 @@ export default function FloatingCursor({
   y,
   label = '다른 사용자',
 }: FloatingCursorProps) {
+  console.log(x, y);
   return (
     <div
       style={{
