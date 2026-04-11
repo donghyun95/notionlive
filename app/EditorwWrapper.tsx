@@ -17,9 +17,6 @@ import { useSelectedData } from './Providers/ClientDataProvider';
 import { getSelfandChildrenFetch } from '@/lib/api/getSelfandChildrenFetch';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { TitleInput } from './TitleInput';
-
-import { ClientOnlyEditor } from './ClientOnlyEditor';
 function throttle<T extends (...args: any[]) => void>(fn: T, delay: number) {
   let lastCall = 0;
 
@@ -108,7 +105,6 @@ export function EditorWrapper({ children }) {
     if (!el || !wrapper) return;
 
     const r = el.getBoundingClientRect();
-    // React State 대신 CSS 변수 직접 수정 (리렌더링 유발 X)
     wrapper.style.setProperty('--rect-width', `${r.width}px`);
     wrapper.style.setProperty('--rect-height', `${r.height}px`);
     wrapper.style.setProperty('--rect-left', `${r.left}px`);

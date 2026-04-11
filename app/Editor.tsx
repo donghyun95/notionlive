@@ -34,16 +34,10 @@ export function Editor({ role }) {
     { mentions: false },
   ) as BlockNoteEditor;
 
-  useEffect(() => {
-    return () => {
-      console.log('Editor unmounted');
-    };
-  }, []);
-
   return (
     <>
       <TitleInput editor={editor} />
-      <BlockNoteView editor={editor} className="editor" />;
+      <BlockNoteView editor={editor} className="editor" />
     </>
   );
 }
