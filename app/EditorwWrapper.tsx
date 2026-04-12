@@ -5,19 +5,7 @@ import { useRef, useMemo, useCallback, useEffect } from 'react';
 import FloatingCursor from './FloatingCursor';
 import { PopOverEmoticon } from './PopOverEmoticon';
 import { useSelectedData } from './Providers/ClientDataProvider';
-
-function throttle<T extends (...args: any[]) => void>(fn: T, delay: number) {
-  let lastCall = 0;
-
-  return (...args: Parameters<T>) => {
-    const now = Date.now();
-
-    if (now - lastCall >= delay) {
-      lastCall = now;
-      fn(...args);
-    }
-  };
-}
+import throttle from 'lodash/throttle';
 
 function CursorLayer() {
   const others = useOthers();

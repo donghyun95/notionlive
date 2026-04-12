@@ -35,13 +35,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { PublishButton } from './publishbutton';
+import { NotificationButton } from './informButton';
+import { PublishButton } from './publish-Button';
 
 export function NavActions() {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
     <div className="flex items-center gap-2 text-sm">
+      <NotificationButton />
       <PublishButton />
       <div className="text-muted-foreground hidden font-medium md:inline-block">
         Edit Oct 08
