@@ -4,6 +4,7 @@ import { renameWorkspaceFetch } from '@/lib/api/renameWorkspaceFetch';
 import { searchUserFetch } from '@/lib/api/search/searchuserFetch';
 import { toast } from 'sonner';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { PendingInvitesfetch } from '@/lib/api/invite/pendingInviteFetch';
 
 type InviteRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
@@ -75,5 +76,13 @@ export function useRenameWorkspaceMutation() {
         position: 'top-center',
       });
     },
+  });
+}
+
+export function usePendingInvites(userId: string) {
+  return useQuery({
+    queryKey: ['pendingInvites', userId],
+    queryFn: () => PendingInvitesfetch(userId),
+    enabled: !!userId, // userId 없으면 실행 안 함
   });
 }

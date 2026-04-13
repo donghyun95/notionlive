@@ -204,3 +204,24 @@ export async function searchUsersByEmailPrefix(
     take: 10,
   });
 }
+export async function getPendingInvitesByUserId(userId: string) {
+  return prisma.workspaceInvite.findMany({
+    where: {
+      inviteeUserId: userId,
+      status: 'PENDING',
+    },
+    include: {
+      workspace: true,
+      inviter: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+}
