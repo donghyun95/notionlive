@@ -19,8 +19,11 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@/components/ui/avatar';
-
+import { signOut } from 'next-auth/react';
 export function SidebarUserInfo() {
+  function logout() {
+    signOut({ callbackUrl: '/login' });
+  }
   return (
     <SidebarMenuItem>
       <DropdownMenu>
@@ -48,7 +51,7 @@ export function SidebarUserInfo() {
           <DropdownMenuItem>Profile</DropdownMenuItem>
           <DropdownMenuItem>Settings</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Logout</DropdownMenuItem>
+          <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </SidebarMenuItem>

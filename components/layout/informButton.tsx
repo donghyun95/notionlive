@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Bell, Check } from 'lucide-react';
+import { Bell, Check, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,10 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import { usePendingInvites } from './tanstack-query-collection';
+import {
+  useInviteActionMutation,
+  usePendingInvites,
+} from './tanstack-query-collection';
 
 type PendingInviteItem = {
   id: string;
@@ -121,21 +124,24 @@ function InviteNotificationCard({
         <div className="mt-3 flex gap-2">
           <Button
             size="sm"
-            className="h-8 text-xs"
+            variant="outline"
+            className="h-8 text-xs bg-green-100 text-green-700 hover:bg-green-200 border-none shadow-none"
             disabled={isLoading}
             onClick={() => onAccept(item.id)}
           >
             {loadingAction === 'accept' ? '수락 중...' : '수락'}
+            <Check size={20} strokeWidth={2.5} className="text-green-600" />
           </Button>
 
           <Button
             size="sm"
             variant="outline"
-            className="h-8 text-xs"
+            className="h-8 text-xs bg-red-100 text-red-700 hover:bg-red-200 border-none shadow-none"
             disabled={isLoading}
             onClick={() => onReject(item.id)}
           >
             {loadingAction === 'reject' ? '거절 중...' : '거절'}
+            <X className="h-4 w-4 text-red-500" />
           </Button>
         </div>
 
@@ -158,7 +164,7 @@ export function NotificationButton() {
   const [actionLoading, setActionLoading] = React.useState<
     Record<string, 'accept' | 'reject' | null>
   >({});
-
+  const { mutate: InviteMutation, isPending } = useInviteActionMutation();
   const inviteNotifications = React.useMemo(() => {
     if (!PendingInvites || !Array.isArray(PendingInvites)) return [];
 
@@ -189,8 +195,7 @@ export function NotificationButton() {
     try {
       setActionLoading((prev) => ({ ...prev, [id]: 'accept' }));
 
-      // TODO: 실제 수락 API 연결
-      // await acceptInvite(id);
+      InviteMutation({ inviteId: id, type: 'ACCEPT' });
 
       setReadIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
       setHiddenIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
@@ -204,7 +209,7 @@ export function NotificationButton() {
   const handleReject = async (id: string) => {
     try {
       setActionLoading((prev) => ({ ...prev, [id]: 'reject' }));
-
+      InviteMutation({ inviteId: id, type: 'DECLINE' });
       // TODO: 실제 거절 API 연결
       // await rejectInvite(id);
 
@@ -278,7 +283,7 @@ export function NotificationButton() {
             </div>
           ) : (
             <div className="divide-y">
-              {inviteNotifications.map((item: PendingInviteItem) => (
+              {PendingInvites.map((item: PendingInviteItem) => (
                 <InviteNotificationCard
                   key={item.id}
                   item={item}

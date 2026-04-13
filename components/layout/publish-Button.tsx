@@ -69,17 +69,14 @@ export function PublishButton({}: any) {
       </PopoverTrigger>
 
       <PopoverContent
-        align="start"
+        align="end"
         sideOffset={10}
         className="
-          w-[360px] rounded-3xl border border-white/60
-          bg-white/90 p-0 text-zinc-900
-          shadow-[0_10px_20px_rgba(0,0,0,0.18)]
-          backdrop-blur-2xl overflow-hidden
-        "
+    w-[360px] p-0
+  "
       >
         <div className="relative">
-          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-br from-zinc-100 via-white to-zinc-50" />
+          <div className="absolute inset-x-0 top-0 h-24 from-zinc-100 via-white to-zinc-50" />
           <div className="relative p-5">
             <div className="mb-5 flex items-start justify-between">
               <div>

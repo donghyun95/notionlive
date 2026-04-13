@@ -5,7 +5,7 @@ import { searchUserFetch } from '@/lib/api/search/searchuserFetch';
 import { toast } from 'sonner';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { PendingInvitesfetch } from '@/lib/api/invite/pendingInviteFetch';
-
+import { acceptRejectFetch } from '@/lib/api/invite/acceptRejectFetch';
 type InviteRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
 export const addMemberMutation = () => {
@@ -64,7 +64,7 @@ export function useRenameWorkspaceMutation() {
         position: 'top-center',
       });
       queryClient.invalidateQueries({
-        queryKey: ['initialPage', variables.userId],
+        queryKey: ['initialPage'],
       });
       // queryClient.invalidateQueries({
       //   queryKey: ['workspaces'],
@@ -84,5 +84,39 @@ export function usePendingInvites(userId: string) {
     queryKey: ['pendingInvites', userId],
     queryFn: () => PendingInvitesfetch(userId),
     enabled: !!userId, // userId 없으면 실행 안 함
+  });
+}
+
+type InviteActionType = 'ACCEPT' | 'DECLINE';
+
+interface InviteActionParams {
+  inviteId: string;
+  type: InviteActionType;
+}
+
+export function useInviteActionMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: InviteActionParams) => acceptRejectFetch(params),
+
+    onSuccess: (data, variables) => {
+      // 필요한 쿼리 invalidate
+      queryClient.invalidateQueries({
+        queryKey: ['pendingInvites'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['initialPage'],
+      });
+      toast.success('Success', {
+        position: 'top-center',
+      });
+    },
+
+    onError: (error) => {
+      toast?.error?.('A server error occurred. Please try again later', {
+        position: 'top-center',
+      });
+    },
   });
 }
