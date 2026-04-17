@@ -70,17 +70,20 @@ export function TitleInput({ editor }) {
     setTitle(selfAndChildren.self.title ?? '');
   }, [pageNodeID, selfAndChildren.self.title]);
   return (
-    <div className="editor mx-auto mb-10">
+    <div className="editor mx-auto mb-10 flex">
       {selfAndChildren.role === 'VIEWER' ? (
-        <h1 className="px-[54px]">{title}</h1>
+        <h1 className="min-w-0 flex px-[54px] border-0 outline-none text-[40px] font-bold leading-[1.2] font-['Pretendard',sans-serif]">
+          {title}
+        </h1>
       ) : (
         <input
-          className="px-[54px]"
+          className="min-w-0 flex px-[54px] border-0 outline-none text-[40px] font-bold leading-[1.2] font-['Pretendard',sans-serif]"
           onKeyDown={handleKeyDown}
           onChange={handleChange}
           maxLength={30}
           placeholder="Please enter the title"
           value={title ?? ''}
+          spellCheck="false"
         ></input>
       )}
     </div>

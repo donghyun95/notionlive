@@ -40,14 +40,15 @@ export default async function RootLayout({
       <SidebarProvider>
         <AppSidebar initialPage={sidebarData as any} />
         <SidebarInset>
-          <header className="sticky top-0 z-50 grid h-14 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-3">
+          <header className="sticky top-0 z-50 grid h-14 w-full grid-cols-[auto_1fr_auto] items-center gap-2 px-2 md:grid-cols-[1fr_minmax(0,480px)_1fr] bg-[#FAFAF5]">
+            {/* 좌측: 사이드바 트리거만 남김 (모바일에서 공간 최소화) */}
             <div className="flex min-w-0 items-center gap-2">
               <SidebarTrigger />
               <Separator
                 orientation="vertical"
                 className="mr-2 data-[orientation=vertical]:h-4"
               />
-              <Breadcrumb className="min-w-0">
+              <Breadcrumb className="min-w-0 hidden md:flex">
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     <BreadcrumbPage className="line-clamp-1">
@@ -58,11 +59,11 @@ export default async function RootLayout({
               </Breadcrumb>
             </div>
 
-            <div className="justify-self-center min-w-0 max-w-full">
+            <div className="flex min-w-0">
               <SearchBar />
             </div>
 
-            <div className="justify-self-end px-3">
+            <div className="flex min-w-0 justify-end">
               <NavActions />
             </div>
           </header>

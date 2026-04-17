@@ -103,7 +103,10 @@ export function EditorWrapper({ children }) {
 
   return (
     <>
-      <div ref={containerRef} className="page min-w-0 w-full overflow-x-auto">
+      <div
+        ref={containerRef}
+        className="page justify-center min-w-0 w-full overflow-x-auto"
+      >
         <motion.div
           initial={{ x: 20, y: 20, opacity: 0 }} // 아래 + 투명
           animate={{ x: 0, y: 0, opacity: 1 }} // 원래 위치 + 보이기
@@ -111,7 +114,7 @@ export function EditorWrapper({ children }) {
           ref={contentRef}
           onPointerMove={handlePointerMove}
           onPointerLeave={handlePointerLeave}
-          className="mx-auto min-h-[92vh] bg-white relative max-w-[100%] min-w-[360px]"
+          className="min-h-[92vh] bg-white relative max-w-[100%] min-w-[360px] md:min-w-[900px] overflow-hidden"
         >
           <PopOverEmoticon />
           {children}

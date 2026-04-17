@@ -42,13 +42,21 @@ export function NavActions() {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
-    <div className="flex items-center gap-2 text-sm">
-      <NotificationButton />
-      <PublishButton />
-      <div className="text-muted-foreground hidden font-medium md:inline-block">
+    <div className="flex min-w-0 items-center justify-end gap-1 sm:gap-2 text-sm">
+      <div className="flex-shrink-0">
+        <NotificationButton />
+      </div>
+      <div className="flex-shrink-0">
+        <PublishButton />
+      </div>
+      <div className="text-muted-foreground hidden font-medium md:inline-block truncate">
         Edit Oct 08
       </div>
-      <Button variant="ghost" size="icon" className="h-7 w-7">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7 flex-shrink-0 hidden sm:flex"
+      >
         <Star />
       </Button>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -56,7 +64,7 @@ export function NavActions() {
           <Button
             variant="ghost"
             size="icon"
-            className="data-[state=open]:bg-accent h-7 w-7"
+            className="data-[state=open]:bg-accent h-7 w-7 flex-shrink-0"
           >
             <MoreHorizontal />
           </Button>
