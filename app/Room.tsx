@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, useEffect } from 'react';
-import { LiveblocksProvider, RoomProvider } from '@liveblocks/react/suspense';
+import { RoomProvider, ClientSideSuspense } from '@liveblocks/react/suspense';
 import { useSelectedData } from './Providers/ClientDataProvider';
 
 type RoomData = {
@@ -23,7 +23,7 @@ export function Room({ PageId, children }: any) {
     if (PageId) {
       setPageNodeID(PageId);
     }
-  });
+  }, [PageId]);
 
   return (
     <RoomProvider

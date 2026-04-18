@@ -11,23 +11,17 @@ export default async function Page({
   searchParams: { PageId?: string };
 }) {
   const session = await auth();
-  const { userId } = await params;
   const { PageId } = await searchParams;
-  console.log(PageId);
-  const pageId = PageId ? Number(PageId) : undefined;
+  const pageId = PageId ? Number(PageId) : 0;
   if (PageId) {
     if (!Number.isFinite(pageId) || !Number.isInteger(pageId) || pageId < 1) {
       notFound();
     }
   }
 
-  if (!session?.user || session?.user.id !== userId) {
-    notFound();
+  if (!session?.user) {
+    redirect('/login');
   }
-  //userId랑 PageId 프리즈마 직접확인하고 있으면 통과 없으면 404로 리다이렉트
-
-  //값 수정 해야함 , session.uerId
-  //Room id 에 전역에서 선택된 page값 넣어주기
   return (
     <Room PageId={PageId}>
       <EditorWrapper>

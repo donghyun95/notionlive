@@ -158,7 +158,28 @@ export function LoginForm({
               <div className="flex items-center justify-between">
                 <Link href="/" className="inline-flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-gradient-to-br from-[#4e45e4] to-[#bdbaff]">
-                    <Cloud className="h-5 w-5 text-[#fbf7ff]" />
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                      <rect width="64" height="64" rx="16" fill="#4e45e4" />
+                      <text
+                        x="32"
+                        y="40"
+                        textAnchor="middle"
+                        fontSize="30"
+                        fontWeight="700"
+                        fill="white"
+                        fontFamily="Arial, sans-serif"
+                      >
+                        T
+                      </text>
+                      <circle cx="49" cy="16" r="4" fill="white" />
+                      <circle
+                        cx="53"
+                        cy="30"
+                        r="3"
+                        fill="white"
+                        opacity="0.75"
+                      />
+                    </svg>
                   </div>
                   <div>
                     <div className="text-[22px] font-bold tracking-[-0.03em] text-[#30332e]">
