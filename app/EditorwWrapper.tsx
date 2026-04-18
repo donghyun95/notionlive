@@ -1,14 +1,25 @@
 'use client';
-
-import { useUpdateMyPresence, useOthers } from '@liveblocks/react/suspense';
-import { useRef, useMemo, useCallback, useEffect } from 'react';
+import { shallow } from '@liveblocks/react';
+import {
+  useUpdateMyPresence,
+  useOthers,
+  useOthersMapped,
+} from '@liveblocks/react/suspense';
+import { useRef, useMemo, useCallback, useEffect, useState } from 'react';
 import FloatingCursor from './FloatingCursor';
 import { PopOverEmoticon } from './PopOverEmoticon';
 import { useSelectedData } from './Providers/ClientDataProvider';
 import throttle from 'lodash/throttle';
 import { motion } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
 function CursorLayer({ contentRef }) {
-  const others = useOthers();
+  const others = useOthersMapped(
+    (other) => ({
+      cursor: other.presence.cursor,
+      info: other.info,
+    }),
+    shallow,
+  );
   // 다른 사용자가 없으면 아무것도 렌더링하지 않음
   if (others.length === 0) return null;
   if (!contentRef.current) return null;
@@ -16,28 +27,35 @@ function CursorLayer({ contentRef }) {
 
   return (
     <>
-      {others
-        .filter((other) => other.presence.cursor != null)
-        .map(({ connectionId, presence, info }) => (
+      {others.map(([id, other]) => {
+        if (other.cursor == null) {
+          return null;
+        }
+
+        return (
           <FloatingCursor
-            key={connectionId}
-            // 기존 계산 로직 그대로 유지
-            x={presence.cursor!.x * contentRect.width}
-            y={presence.cursor!.y * contentRect.height}
-            color={info.color}
-            image={info.image}
+            key={id}
+            // connectionId is an integer that is incremented at every new connections
+            // Assigning a color with a modulo makes sure that a specific user has the same colors on every clients
+            color={other.info.color}
+            image={other.info.image}
+            x={other.cursor.x * contentRect.width}
+            y={other.cursor.y * contentRect.height}
           />
-        ))}
+        );
+      })}
     </>
   );
 }
 export function EditorWrapper({ children }) {
   const isCursorOn = useSelectedData((state) => state.isCursorOn);
+  const [layoutReady, setLayoutReady] = useState(false);
   const setisCursorOn = useSelectedData((state) => state.setisCursorOn);
-
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-
+  const searchParams = useSearchParams();
+  const PageId = searchParams.get('PageId');
+  console.log('페이지 아이디', PageId);
   const updateMyPresence = useUpdateMyPresence();
   const throttledUpdate = useMemo(
     () =>
@@ -51,6 +69,9 @@ export function EditorWrapper({ children }) {
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!isCursorOn) {
+        return null;
+      }
       const el = e.currentTarget;
       const r = el.getBoundingClientRect();
 
@@ -58,19 +79,48 @@ export function EditorWrapper({ children }) {
       const y = (e.clientY - r.top) / r.height;
       throttledUpdate(x, y);
     },
-    [throttledUpdate],
+    [throttledUpdate, isCursorOn],
   );
   const handlePointerLeave = useCallback(() => {
     updateMyPresence({ cursor: null });
   }, [updateMyPresence]);
+  useEffect(() => {
+    if (!isCursorOn) {
+      throttledUpdate.cancel();
+      updateMyPresence({ cursor: null });
+    }
+  }, [isCursorOn, throttledUpdate, updateMyPresence]);
 
   // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     if (!isCursorOn) setisCursorOn(true);
-  //   }, 3000);
   //   const el = contentRef.current;
-  //   return () => clearTimeout(timer);
-  // }, [setisCursorOn]);
+  //   if (!el) return;
+
+  //   const observer = new ResizeObserver((entries) => {
+  //     for (let entry of entries) {
+  //       // 너비가 0보다 커지면(레이아웃이 잡히면) 준비 완료로 간주
+  //       if (entry.contentRect.width > 0) {
+  //         setLayoutReady(true);
+  //         observer.disconnect(); // 한 번 잡히면 감시 종료
+  //       }
+  //     }
+  //   });
+
+  //   observer.observe(el);
+  //   return () => {
+  //     observer.disconnect();
+  //     setLayoutReady(false); // 언마운트 시 레이아웃 준비 상태 초기화
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    setLayoutReady(false);
+    const timer = setTimeout(() => {
+      setLayoutReady(true);
+    }, 3000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [PageId]);
 
   // const updateRectStyles = useCallback(() => {
   //   const el = contentRef.current;
@@ -102,7 +152,7 @@ export function EditorWrapper({ children }) {
   //     window.removeEventListener('resize', updateRectStyles);
   //   };
   // }, [updateRectStyles]);
-
+  console.log(layoutReady, '레이아웃 준비 상태');
   return (
     <>
       <div
@@ -120,7 +170,7 @@ export function EditorWrapper({ children }) {
         >
           <PopOverEmoticon />
           {children}
-          {isCursorOn && <CursorLayer contentRef={contentRef} />}
+          {layoutReady && isCursorOn && <CursorLayer contentRef={contentRef} />}
         </motion.div>
       </div>
     </>

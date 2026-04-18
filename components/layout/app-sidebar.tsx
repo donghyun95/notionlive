@@ -110,10 +110,10 @@ export function AppSidebar({
 
   return (
     <Sidebar className="border-r-0" {...props}>
-      <SidebarHeader className="w-full px-2 py-2 bg-[#f3f4ee]">
+      <SidebarHeader className="w-full px-2 py-2 bg-[#F1F1EF]">
         <SidebarUserInfo name={userName} image={userImage} />
       </SidebarHeader>
-      <SidebarContent className="bg-[#f3f4ee] overflow-y-auto no-scrollbar">
+      <SidebarContent className="bg-[#F1F1EF] overflow-y-auto no-scrollbar">
         <SidebarTopUtilities />
         <Separator className="my-0 bg-stone-200" />
         <NavWorkspaces workspaces={user.workspaces} userId={userId} />
