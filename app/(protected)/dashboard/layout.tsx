@@ -14,15 +14,9 @@ import {
 } from '@/components/ui/sidebar';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-
-import {
-  getSidebarData,
-  getChildrenPageByParentsId,
-} from '@/server/users/queries';
-import { NextResponse } from 'next/server';
-import { getPageAncestorPath } from '@/server/create/queries';
+import { getSidebarData } from '@/server/users/queries';
 import { Input } from '@/components/ui/input';
-import { Check, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { SelectedDataProvider } from '@/app/Providers/ClientDataProvider';
 
 export default async function RootLayout({
@@ -31,8 +25,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  if (!session) {
-    redirect('/login');
+
+  if (!session || !session.user?.id) {
+    return redirect('/login');
   }
   const sidebarData = await getSidebarData(session?.user?.id);
   return (
