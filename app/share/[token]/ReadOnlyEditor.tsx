@@ -15,7 +15,7 @@ export function ReadOnlyEditor({ pagenodeID }: { pagenodeID: number }) {
   return (
     <BlockNoteView
       editor={editor}
-      className={`editor`}
+      className="min-h-[63vh] mx-auto max-w-[100%] md:max-w-[768px] md:min-w-[768px] commonPadding min-h-full"
       editable={false}
       onChange={(editor, { getChanges }) => {
         const changes = getChanges();

@@ -348,8 +348,8 @@ function WorkSpaceFolder({
                     >
                       <div className="flex h-8 w-5 shrink-0 items-center justify-center">
                         <div className="flex h-[18px] w-[18px]">
-                          <Folder className="h-[18px] w-[18px] text-[#46655e] fill-[#d5f8ef] group-data-[state=open]/trigger:hidden" />
-                          <FolderOpen className="h-[18px] w-[18px] text-[#46655e] fill-[#d5f8ef] hidden group-data-[state=open]/trigger:block" />
+                          <Folder className="h-[18px] w-[18px] text-yellow-600 fill-yellow-200 group-data-[state=open]/trigger:hidden" />
+                          <FolderOpen className="h-[18px] w-[18px] text-yellow-600 fill-yellow-200 hidden group-data-[state=open]/trigger:block" />
                         </div>
                       </div>
 

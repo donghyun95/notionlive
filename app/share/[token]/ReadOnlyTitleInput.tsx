@@ -10,5 +10,9 @@ export function ReadOnlyTitle({ pagenodeID }: { pagenodeID: number }) {
     refetchInterval: 2000,
   });
   const title = publicData.title ?? '';
-  return <h1 className="readonlyTitle">{title}</h1>;
+  return (
+    <div className="min-w-0 my-6 mx-auto max-w-[100%] md:max-w-[768px] md:min-w-[768px] commonPadding border-0 outline-none text-[40px] font-bold leading-[1.2] font-['Pretendard',sans-serif]">
+      {title}
+    </div>
+  );
 }

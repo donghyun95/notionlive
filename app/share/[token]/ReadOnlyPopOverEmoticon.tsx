@@ -20,8 +20,8 @@ export function ReadOnlyPopOverEmoticon({
     return null;
   }
   return (
-    <div className="emotiocnBox">
-      <div className="emoticonWrapper title">
+    <div className="mt-20 mb-4 mx-auto">
+      <div className="min-w-0  mx-auto max-w-[100%] md:max-w-[768px] md:min-w-[768px] commonPadding">
         <span className="text-5xl">{publicData.icon}</span>
       </div>
     </div>

@@ -30,7 +30,7 @@ export default function Room({ pageid }: { pageid: number }) {
   return (
     <LiveblocksProvider authEndpoint="/api/liveblocks-auth" throttle={16}>
       <RoomProvider id={String(pageid)} initialPresence={{ cursor: null }}>
-        <div className="relative page">
+        <div className="flex flex-col">
           <ReadOnlyPopOverEmoticon pagenodeID={pageid} />
           <ReadOnlyTitle pagenodeID={pageid} />
           <ClientReadOnlyEditor pagenodeID={pageid} />
