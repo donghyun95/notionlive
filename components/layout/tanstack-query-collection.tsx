@@ -9,6 +9,7 @@ import { acceptRejectFetch } from '@/lib/api/invite/acceptRejectFetch';
 import { WorkspaceMembersfetch } from '@/lib/api/getWorkspaceMemeberFetch';
 import { removeWorkspaceMemberFetch } from '@/lib/api/removeWorkspaceMemberFetch';
 import { deleteWorkspaceFetch } from '@/lib/api/deleteWorkspaceFetch';
+import { updateWorkspaceMemberRoleFetch } from '@/lib/api/updateWorkspaceMemberRoleFetch';
 
 type InviteRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
@@ -167,6 +168,12 @@ type DeleteWorkspaceVariables = {
   workspaceId: number;
 };
 
+type UpdateWorkspaceMemberRoleVariables = {
+  workspaceId: number;
+  userId: string;
+  role: 'OWNER' | 'MEMBER';
+};
+
 export function useDeleteWorkspaceMutation() {
   const queryClient = useQueryClient();
 
@@ -189,6 +196,35 @@ export function useDeleteWorkspaceMutation() {
     onError: (error) => {
       const errorMessage =
         error instanceof Error ? error.message : 'Failed to delete workspace.';
+
+      toast.error(errorMessage, {
+        position: 'top-center',
+      });
+    },
+  });
+}
+
+export function useUpdateWorkspaceMemberRoleMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      userId,
+      role,
+    }: UpdateWorkspaceMemberRoleVariables) =>
+      updateWorkspaceMemberRoleFetch({ workspaceId, userId, role }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['workspaceMembers', variables.workspaceId],
+      });
+      toast.success('Member role updated', {
+        position: 'top-center',
+      });
+    },
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error ? error.message : '멤버 권한 수정에 실패했습니다.';
 
       toast.error(errorMessage, {
         position: 'top-center',

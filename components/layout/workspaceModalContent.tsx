@@ -32,6 +32,7 @@ import {
   useDeleteWorkspaceMutation,
   useRemoveWorkspaceMemberMutation,
   useSearchUsers,
+  useUpdateWorkspaceMemberRoleMutation,
   useRenameWorkspaceMutation,
   useWorkspaceMembers,
 } from './tanstack-query-collection';
@@ -78,6 +79,7 @@ export function WorkspaceSettings({
   console.log('workspaceMembers:', workspaceMembers);
 
   const { mutate: removeMemberMutate } = useRemoveWorkspaceMemberMutation();
+  const { mutate: updateRoleMutate } = useUpdateWorkspaceMemberRoleMutation();
   const { mutate: mutateWorkspaceName } = useRenameWorkspaceMutation();
   const { mutate: deleteWorkspaceMutate, isPending: isDeleting } =
     useDeleteWorkspaceMutation();
@@ -109,7 +111,15 @@ export function WorkspaceSettings({
     }
   };
 
-  const handleUpdateRole = (_memberId: string, _role: MemberRole) => {};
+  const handleUpdateRole = (memberId: string, role: MemberRole) => {
+    if (role !== 'OWNER' && role !== 'MEMBER') return;
+
+    updateRoleMutate({
+      workspaceId,
+      userId: memberId,
+      role,
+    });
+  };
 
   const handleRemoveMember = (memberId: string) => {
     removeMemberMutate({
@@ -264,6 +274,7 @@ function WorkspaceMembersSection({
               member={member.user}
               index={index}
               role={member.role}
+              onUpdateRole={onUpdateRole}
               onRemoveMember={onRemoveMember}
             />
           ))}

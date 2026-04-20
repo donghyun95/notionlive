@@ -52,6 +52,59 @@ export async function getWorkspaceMembers(workspaceId: number) {
   });
 }
 
+export async function updateWorkspaceMemberRole(
+  workspaceId: number,
+  userId: string,
+  role: 'OWNER' | 'MEMBER',
+) {
+  if (role !== 'OWNER' && role !== 'MEMBER') {
+    throw new Error('Invalid role');
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const membership = await tx.workspaceMember.findUnique({
+      where: {
+        userId_workspaceId: {
+          userId,
+          workspaceId,
+        },
+      },
+      select: {
+        role: true,
+      },
+    });
+
+    if (!membership) {
+      throw new Error('Member not found');
+    }
+
+    if (membership.role === 'OWNER' && role === 'MEMBER') {
+      const ownerCount = await tx.workspaceMember.count({
+        where: {
+          workspaceId,
+          role: 'OWNER',
+        },
+      });
+
+      if (ownerCount <= 1) {
+        throw new Error('At least one OWNER must remain in this workspace');
+      }
+    }
+
+    return tx.workspaceMember.update({
+      where: {
+        userId_workspaceId: {
+          userId,
+          workspaceId,
+        },
+      },
+      data: {
+        role,
+      },
+    });
+  });
+}
+
 export async function removeWorkspaceMember(
   workspaceId: number,
   userId: string,
