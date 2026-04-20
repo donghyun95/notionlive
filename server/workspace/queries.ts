@@ -78,19 +78,20 @@ export async function updateWorkspaceMemberRole(
       throw new Error('Member not found');
     }
 
-    if (membership.role === 'OWNER' && role === 'MEMBER') {
-      const ownerCount = await tx.workspaceMember.count({
-        where: {
-          workspaceId,
-          role: 'OWNER',
-        },
-      });
+    if (membership.role === 'OWNER') {
+      if (role === 'MEMBER') {
+        const ownerCount = await tx.workspaceMember.count({
+          where: {
+            workspaceId,
+            role: 'OWNER',
+          },
+        });
 
-      if (ownerCount <= 1) {
-        throw new Error('At least one OWNER must remain in this workspace');
+        if (ownerCount <= 1) {
+          throw new Error('At least one OWNER must remain in this workspace');
+        }
       }
     }
-
     return tx.workspaceMember.update({
       where: {
         userId_workspaceId: {
@@ -150,7 +151,10 @@ export async function removeWorkspaceMember(
   });
 }
 
-export async function deleteWorkspace(workspaceId: number, requesterId: string) {
+export async function deleteWorkspace(
+  workspaceId: number,
+  requesterId: string,
+) {
   return prisma.$transaction(async (tx) => {
     const membership = await tx.workspaceMember.findUnique({
       where: {
