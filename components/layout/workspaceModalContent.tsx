@@ -29,6 +29,7 @@ import { WorkspaceInviteMembersSection } from './WorkspaceInviteMembersSection';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   addMemberMutation,
+  useDeleteWorkspaceMutation,
   useRemoveWorkspaceMemberMutation,
   useSearchUsers,
   useRenameWorkspaceMutation,
@@ -64,7 +65,6 @@ export function WorkspaceSettings({
   const [inviteKeyword, setInviteKeyword] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const { mutate: addMemberMutate } = addMemberMutation();
   const { data: users, isLoading } = useSearchUsers(inviteKeyword, workspaceId);
@@ -77,6 +77,8 @@ export function WorkspaceSettings({
 
   const { mutate: removeMemberMutate } = useRemoveWorkspaceMemberMutation();
   const { mutate: mutateWorkspaceName } = useRenameWorkspaceMutation();
+  const { mutate: deleteWorkspaceMutate, isPending: isDeleting } =
+    useDeleteWorkspaceMutation();
   const { data: session } = useSession();
   const sessionUserId = session?.user.id || '';
 
@@ -117,12 +119,15 @@ export function WorkspaceSettings({
   const handleDeleteWorkspace = () => {
     const isConfirmMatched = deleteConfirmText.trim() === 'Delete Workspace';
     if (!isConfirmMatched || isDeleting) return;
-
-    setIsDeleting(true);
-    console.log('delete workspace');
-    setDeleteConfirmText('');
-    onClose?.();
-    setIsDeleting(false);
+    deleteWorkspaceMutate(
+      { workspaceId },
+      {
+        onSuccess: () => {
+          setDeleteConfirmText('');
+          onClose?.();
+        },
+      },
+    );
   };
 
   const isDeleteEnabled = deleteConfirmText.trim() === 'Delete Workspace';

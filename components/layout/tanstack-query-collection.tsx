@@ -8,6 +8,7 @@ import { PendingInvitesfetch } from '@/lib/api/invite/pendingInviteFetch';
 import { acceptRejectFetch } from '@/lib/api/invite/acceptRejectFetch';
 import { WorkspaceMembersfetch } from '@/lib/api/getWorkspaceMemeberFetch';
 import { removeWorkspaceMemberFetch } from '@/lib/api/removeWorkspaceMemberFetch';
+import { deleteWorkspaceFetch } from '@/lib/api/deleteWorkspaceFetch';
 
 type InviteRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
@@ -156,6 +157,50 @@ export function useRemoveWorkspaceMemberMutation() {
         error instanceof Error
           ? error.message
           : '멤버 삭제에 실패했습니다.';
+
+      toast.error(errorMessage, {
+        position: 'top-center',
+      });
+    },
+  });
+}
+
+type DeleteWorkspaceVariables = {
+  workspaceId: number;
+};
+
+export function useDeleteWorkspaceMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceId }: DeleteWorkspaceVariables) =>
+      deleteWorkspaceFetch(workspaceId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['initialPage'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['workspaceMembers', variables.workspaceId],
+      });
+
+      const hasWorkspacesQuery = queryClient
+        .getQueryCache()
+        .find({ queryKey: ['workspaces'] });
+      if (hasWorkspacesQuery) {
+        queryClient.invalidateQueries({
+          queryKey: ['workspaces'],
+        });
+      }
+
+      toast.success('Workspace deleted', {
+        position: 'top-center',
+      });
+    },
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to delete workspace.';
 
       toast.error(errorMessage, {
         position: 'top-center',
