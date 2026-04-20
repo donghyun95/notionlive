@@ -20,7 +20,7 @@ export function WorkspaceSettingsDialog({
           <DialogTitle>Workspace Settings</DialogTitle>
         </VisuallyHidden.Root>
       </DialogHeader>
-      <DialogContent className="bg-white text-black border-gray-200 dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-800 rounded-2xl">
+      <DialogContent className="min-w-[60vw] bg-white text-black border-gray-200 dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-800 rounded-2xl">
         <WorkspaceSettings
           workspaceId={workspaceId}
           workspaceNameProps={workspaceName}

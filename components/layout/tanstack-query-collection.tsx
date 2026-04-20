@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { PendingInvitesfetch } from '@/lib/api/invite/pendingInviteFetch';
 import { acceptRejectFetch } from '@/lib/api/invite/acceptRejectFetch';
+import { WorkspaceMembersfetch } from '@/lib/api/getWorkspaceMemeberFetch';
+
 type InviteRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
 export const addMemberMutation = () => {
@@ -118,5 +120,13 @@ export function useInviteActionMutation() {
         position: 'top-center',
       });
     },
+  });
+}
+
+export function useWorkspaceMembers(workspaceId: number) {
+  return useQuery({
+    queryKey: ['workspaceMembers', workspaceId],
+    queryFn: () => WorkspaceMembersfetch(workspaceId),
+    enabled: !!workspaceId, // workspaceId 있을 때만 실행
   });
 }

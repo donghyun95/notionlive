@@ -11,6 +11,7 @@ import {
   UserCheck,
   UserPlus,
   User2,
+  ChevronDown,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,52 +25,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import {
-  Command,
-  CommandList,
-  CommandItem,
-  CommandEmpty,
-} from '@/components/ui/command';
 import { WorkspaceInviteMembersSection } from './WorkspaceInviteMembersSection';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   addMemberMutation,
   useSearchUsers,
   useRenameWorkspaceMutation,
+  useWorkspaceMembers,
 } from './tanstack-query-collection';
 import { useSession } from 'next-auth/react';
 type MemberRole = 'Admin' | 'Member' | 'Guest';
 
 type Member = {
-  id: number;
-  name: string;
-  email: string;
   role: MemberRole;
+  joinedAt: string;
+  userId: string;
+  workspaceId: number;
+  user: object;
 };
-
-const DEFAULT_WORKSPACE_NAME = 'Design Team Workspace';
-
-const DEFAULT_MEMBERS: Member[] = [
-  {
-    id: 1,
-    name: 'Olivia Martin',
-    email: 'olivia@example.com',
-    role: 'Admin',
-  },
-  {
-    id: 2,
-    name: 'Noah Kim',
-    email: 'noah@example.com',
-    role: 'Member',
-  },
-  {
-    id: 3,
-    name: 'Emma Lee',
-    email: 'emma@example.com',
-    role: 'Guest',
-  },
-];
 type User = {
   id: string | number;
   name: string;
@@ -86,24 +59,20 @@ export function WorkspaceSettings({
   const [workspaceName, setWorkspaceName] = useState(workspaceNameProps);
   const [inviteKeyword, setInviteKeyword] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [members, setMembers] = useState<Member[]>(DEFAULT_MEMBERS);
+
   const { mutate: addMemberMutate } = addMemberMutation();
   const { data: users, isLoading } = useSearchUsers(inviteKeyword, workspaceId);
+  const {
+    data: workspaceMembers,
+    isLoading: useWorkspaceMembersLoading,
+    isError,
+  } = useWorkspaceMembers(workspaceId);
+  console.log('workspaceMembers:', workspaceMembers);
+
+  const [members, setMembers] = useState<Member[]>(workspaceMembers);
   const { mutate: mutateWorkspaceName } = useRenameWorkspaceMutation();
   const { data: session } = useSession();
   const sessionUserId = session?.user.id || '';
-  const filteredMembers = useMemo(() => {
-    const keyword = inviteKeyword.trim().toLowerCase();
-
-    if (!keyword) return members;
-
-    return members.filter((member) => {
-      return (
-        member.name.toLowerCase().includes(keyword) ||
-        member.email.toLowerCase().includes(keyword)
-      );
-    });
-  }, [inviteKeyword, members]);
 
   const handleSaveWorkspaceName = () => {
     mutateWorkspaceName({
@@ -147,8 +116,8 @@ export function WorkspaceSettings({
   };
 
   return (
-    <div className="max-h-[90vh] overflow-y-auto bg-white text-slate-900 font-sans selection:bg-slate-200 ">
-      <div className="mx-auto max-w-2xl px-4 py-6">
+    <div className="max-h-[90vh] overflow-y-auto bg-white text-slate-900 font-sans selection:bg-slate-200">
+      <div className="mx-auto max-w-2xl px-4 py-6 min-w-[50vw]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -162,7 +131,6 @@ export function WorkspaceSettings({
               onChangeWorkspaceName={setWorkspaceName}
               onSave={handleSaveWorkspaceName}
             />
-
             <WorkspaceInviteMembersSection
               inviteKeyword={inviteKeyword}
               onChangeInviteKeyword={setInviteKeyword}
@@ -174,12 +142,11 @@ export function WorkspaceSettings({
             />
 
             <WorkspaceMembersSection
-              members={filteredMembers}
-              totalCount={members.length}
+              members={workspaceMembers || []}
+              totalCount={workspaceMembers ? workspaceMembers.length : 0}
               onUpdateRole={handleUpdateRole}
               onRemoveMember={handleRemoveMember}
             />
-
             <WorkspaceDangerZoneSection
               onDeleteWorkspace={handleDeleteWorkspace}
             />
@@ -253,33 +220,26 @@ function WorkspaceMembersSection({
   onRemoveMember,
 }: WorkspaceMembersSectionProps) {
   return (
-    <section>
-      <div className="mb-4 flex items-center gap-2">
-        <Label className="text-sm font-semibold text-slate-900">
+    <section className="space-y-4">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant/60">
           Member Management
-        </Label>
-        <Badge
-          variant="secondary"
-          className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-slate-500"
-        >
-          {totalCount} ACTIVE
-        </Badge>
+        </span>
+        <span className="text-xs font-medium text-on-surface-variant">
+          3 Active Members
+        </span>
       </div>
-
-      <div className="space-y-3">
-        <AnimatePresence mode="popLayout">
+      <div className="bg-surface-container-low rounded-xl overflow-hidden">
+        <div className="divide-y divide-outline-variant/10">
           {members.map((member, index) => (
             <WorkspaceMemberItem
-              key={member.id}
-              member={member}
+              key={index}
+              member={member.user}
               index={index}
-              onUpdateRole={onUpdateRole}
-              onRemoveMember={onRemoveMember}
+              role={member.role}
             />
           ))}
-        </AnimatePresence>
-
-        {members.length === 0 && <WorkspaceMembersEmptyState />}
+        </div>
       </div>
     </section>
   );
@@ -290,6 +250,7 @@ type WorkspaceMemberItemProps = {
   index: number;
   onUpdateRole: (memberId: number, role: MemberRole) => void;
   onRemoveMember: (memberId: number) => void;
+  role: string;
 };
 
 function WorkspaceMemberItem({
@@ -297,7 +258,9 @@ function WorkspaceMemberItem({
   index,
   onUpdateRole,
   onRemoveMember,
+  role,
 }: WorkspaceMemberItemProps) {
+  console.log(role);
   return (
     <motion.div
       layout
@@ -305,18 +268,20 @@ function WorkspaceMemberItem({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ delay: index * 0.05 }}
-      className="group flex items-center justify-between rounded-full border border-slate-200 bg-slate-100/50 p-1 pl-5 transition-colors hover:border-slate-300"
+      className="px-6 py-4 flex items-center justify-between hover:bg-surface-container-high transition-colors group"
     >
       <div className="flex items-center gap-3 overflow-hidden">
-        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-slate-200 text-slate-500">
-          <WorkspaceMemberRoleIcon role={member.role} />
-        </div>
+        <img
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6dXKY0NLt-wbTp4du0s3Y5Iqf1k3-LTDr9_f3_59M462W-90Zl9xq1YQD8H1hV4tBNddCzaQCgEP782gl-sCW6ZH-tfyKHctX3jgnHJ_HcyJzj-V6L730E2ciN30OAnU5mqMbTBC3kal6LRlr7zMTA7RGEF-M4Nr_kbu2g9FqU9OIfbJiO5y_EwhS0Gg-xZmKCtRHbBjpfBQ8zKIdEVWEwSOFKydp6fVgwZweTiKirB-2_uKa0laGA8G00xqBulaV2cGGuuEhwdpP"
+          alt="Emma Lee"
+          className="w-10 h-10 rounded-full object-cover"
+        />
 
-        <div className="flex items-baseline gap-2 overflow-hidden">
-          <span className="whitespace-nowrap text-sm font-medium">
+        <div className="flex flex-col items-baseline gap-2 overflow-hidden ">
+          <span className="text-sm font-bold text-on-surface">
             {member.name}
           </span>
-          <span className="truncate text-xs text-slate-400">
+          <span className="text-xs text-on-surface-variant">
             ({member.email})
           </span>
         </div>
@@ -324,21 +289,18 @@ function WorkspaceMemberItem({
 
       <div className="flex items-center gap-1">
         <Select
-          value={member.role}
+          value={role}
           onValueChange={(value: MemberRole) => onUpdateRole(member.id, value)}
         >
           <SelectTrigger className="h-9 w-[110px] rounded-full border-none bg-transparent font-medium text-slate-600 transition-colors hover:bg-slate-200/50 focus:ring-0 focus:ring-offset-0">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="rounded-xl border-slate-200 shadow-xl">
-            <SelectItem value="Admin" className="rounded-lg">
-              Admin
+            <SelectItem value="OWNER" className="rounded-lg">
+              OWNER
             </SelectItem>
             <SelectItem value="Member" className="rounded-lg">
               Member
-            </SelectItem>
-            <SelectItem value="Guest" className="rounded-lg">
-              Guest
             </SelectItem>
           </SelectContent>
         </Select>
@@ -347,7 +309,7 @@ function WorkspaceMemberItem({
           variant="ghost"
           size="icon"
           onClick={() => onRemoveMember(member.id)}
-          className="h-9 w-9 rounded-full text-slate-400 transition-all hover:bg-red-50 hover:text-red-500"
+          className="text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
         >
           <Trash2 className="h-4 w-4" />
         </Button>
@@ -355,27 +317,6 @@ function WorkspaceMemberItem({
     </motion.div>
   );
 }
-
-function WorkspaceMemberRoleIcon({ role }: { role: MemberRole }) {
-  if (role === 'Admin') return <Shield className="h-4 w-4" />;
-  if (role === 'Member') return <UserCheck className="h-4 w-4" />;
-  return <User className="h-4 w-4" />;
-}
-
-function WorkspaceMembersEmptyState() {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="rounded-3xl border-2 border-dashed border-slate-100 py-12 text-center"
-    >
-      <p className="text-sm text-slate-400">
-        No members in this workspace yet.
-      </p>
-    </motion.div>
-  );
-}
-
 type WorkspaceDangerZoneSectionProps = {
   onDeleteWorkspace: () => void;
 };

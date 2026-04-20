@@ -32,3 +32,21 @@ export async function renameWorkspace(workspaceId: number, name: string) {
     },
   });
 }
+
+export async function getWorkspaceMembers(workspaceId: number) {
+  return await prisma.workspaceMember.findMany({
+    where: {
+      workspaceId,
+    },
+    select: {
+      role: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+}
