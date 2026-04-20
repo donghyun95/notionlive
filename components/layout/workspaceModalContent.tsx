@@ -61,6 +61,7 @@ export function WorkspaceSettings({
   const [workspaceName, setWorkspaceName] = useState(workspaceNameProps);
   const [inviteKeyword, setInviteKeyword] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   const { mutate: addMemberMutate } = addMemberMutation();
   const { data: users, isLoading } = useSearchUsers(inviteKeyword, workspaceId);
@@ -73,8 +74,10 @@ export function WorkspaceSettings({
 
   const { mutate: removeMemberMutate } = useRemoveWorkspaceMemberMutation();
   const { mutate: mutateWorkspaceName } = useRenameWorkspaceMutation();
+  const isDeleting = false;
   const { data: session } = useSession();
   const sessionUserId = session?.user.id || '';
+  const isDeleteConfirmValid = deleteConfirmText.trim() === 'Delete Workspace';
 
   const handleSaveWorkspaceName = () => {
     mutateWorkspaceName({
@@ -111,6 +114,7 @@ export function WorkspaceSettings({
   };
 
   const handleDeleteWorkspace = () => {
+    if (!isDeleteConfirmValid) return;
     console.log('delete workspace');
   };
 
@@ -147,6 +151,10 @@ export function WorkspaceSettings({
               onRemoveMember={handleRemoveMember}
             />
             <WorkspaceDangerZoneSection
+              deleteConfirmText={deleteConfirmText}
+              onChangeDeleteConfirmText={setDeleteConfirmText}
+              isDeleteConfirmValid={isDeleteConfirmValid}
+              isDeleting={isDeleting}
               onDeleteWorkspace={handleDeleteWorkspace}
             />
           </div>
@@ -318,10 +326,18 @@ function WorkspaceMemberItem({
   );
 }
 type WorkspaceDangerZoneSectionProps = {
+  deleteConfirmText: string;
+  onChangeDeleteConfirmText: (value: string) => void;
+  isDeleteConfirmValid: boolean;
+  isDeleting?: boolean;
   onDeleteWorkspace: () => void;
 };
 
 function WorkspaceDangerZoneSection({
+  deleteConfirmText,
+  onChangeDeleteConfirmText,
+  isDeleteConfirmValid,
+  isDeleting,
   onDeleteWorkspace,
 }: WorkspaceDangerZoneSectionProps) {
   return (
@@ -336,10 +352,22 @@ function WorkspaceDangerZoneSection({
               Permanently delete this workspace and all its data.
             </p>
           </div>
+          <div className="mb-4 space-y-2">
+            <Input
+              value={deleteConfirmText}
+              onChange={(e) => onChangeDeleteConfirmText(e.target.value)}
+              placeholder="Delete Workspace"
+              className="border-red-200 bg-white text-red-900 placeholder:text-red-400/70 focus-visible:ring-red-300"
+            />
+            <p className="text-sm text-red-700/70">
+              삭제하려면 Delete Workspace를 입력하세요.
+            </p>
+          </div>
 
           <Button
             variant="outline"
             onClick={onDeleteWorkspace}
+            disabled={!isDeleteConfirmValid || isDeleting}
             className="h-10 rounded-xl border-red-200 px-6 text-red-600 transition-all active:scale-95 hover:bg-red-100 hover:text-red-700"
           >
             Delete Workspace
