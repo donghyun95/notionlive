@@ -54,13 +54,17 @@ type User = {
 export function WorkspaceSettings({
   workspaceId,
   workspaceNameProps,
+  onClose,
 }: {
   workspaceId: number;
   workspaceNameProps: string;
+  onClose?: () => void;
 }) {
   const [workspaceName, setWorkspaceName] = useState(workspaceNameProps);
   const [inviteKeyword, setInviteKeyword] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { mutate: addMemberMutate } = addMemberMutation();
   const { data: users, isLoading } = useSearchUsers(inviteKeyword, workspaceId);
@@ -111,8 +115,17 @@ export function WorkspaceSettings({
   };
 
   const handleDeleteWorkspace = () => {
+    const isConfirmMatched = deleteConfirmText.trim() === 'Delete Workspace';
+    if (!isConfirmMatched || isDeleting) return;
+
+    setIsDeleting(true);
     console.log('delete workspace');
+    setDeleteConfirmText('');
+    onClose?.();
+    setIsDeleting(false);
   };
+
+  const isDeleteEnabled = deleteConfirmText.trim() === 'Delete Workspace';
 
   return (
     <div className="max-h-[90vh] overflow-y-auto bg-white text-slate-900 font-sans selection:bg-slate-200">
@@ -147,6 +160,10 @@ export function WorkspaceSettings({
               onRemoveMember={handleRemoveMember}
             />
             <WorkspaceDangerZoneSection
+              confirmText={deleteConfirmText}
+              onChangeConfirmText={setDeleteConfirmText}
+              isDeleteEnabled={isDeleteEnabled}
+              isDeleting={isDeleting}
               onDeleteWorkspace={handleDeleteWorkspace}
             />
           </div>
@@ -318,10 +335,18 @@ function WorkspaceMemberItem({
   );
 }
 type WorkspaceDangerZoneSectionProps = {
+  confirmText: string;
+  onChangeConfirmText: (value: string) => void;
+  isDeleteEnabled: boolean;
+  isDeleting: boolean;
   onDeleteWorkspace: () => void;
 };
 
 function WorkspaceDangerZoneSection({
+  confirmText,
+  onChangeConfirmText,
+  isDeleteEnabled,
+  isDeleting,
   onDeleteWorkspace,
 }: WorkspaceDangerZoneSectionProps) {
   return (
@@ -336,10 +361,23 @@ function WorkspaceDangerZoneSection({
               Permanently delete this workspace and all its data.
             </p>
           </div>
+          <p className="mb-2 text-sm text-red-700/70">
+            삭제하려면 Delete Workspace를 입력하세요.
+          </p>
+          <Input
+            value={confirmText}
+            onChange={(e) => onChangeConfirmText(e.target.value)}
+            className="mb-2 h-10 rounded-xl border-red-200 bg-white/80 text-red-900 placeholder:text-red-400/70 focus-visible:ring-red-300"
+            placeholder="Delete Workspace"
+          />
+          <p className="mb-4 text-xs text-red-700/70">
+            삭제하려면 Delete Workspace를 입력하세요.
+          </p>
 
           <Button
             variant="outline"
             onClick={onDeleteWorkspace}
+            disabled={!isDeleteEnabled || isDeleting}
             className="h-10 rounded-xl border-red-200 px-6 text-red-600 transition-all active:scale-95 hover:bg-red-100 hover:text-red-700"
           >
             Delete Workspace
