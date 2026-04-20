@@ -36,6 +36,7 @@ import {
   useWorkspaceMembers,
 } from './tanstack-query-collection';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 type MemberRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
 type Member = {
@@ -65,6 +66,7 @@ export function WorkspaceSettings({
   const [inviteKeyword, setInviteKeyword] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const router = useRouter();
 
   const { mutate: addMemberMutate } = addMemberMutation();
   const { data: users, isLoading } = useSearchUsers(inviteKeyword, workspaceId);
@@ -77,8 +79,10 @@ export function WorkspaceSettings({
 
   const { mutate: removeMemberMutate } = useRemoveWorkspaceMemberMutation();
   const { mutate: mutateWorkspaceName } = useRenameWorkspaceMutation();
-  const { mutate: deleteWorkspaceMutate, isPending: isDeleting } =
-    useDeleteWorkspaceMutation();
+  const {
+    mutate: deleteWorkspaceMutate,
+    isPending: isDeleting,
+  } = useDeleteWorkspaceMutation();
   const { data: session } = useSession();
   const sessionUserId = session?.user.id || '';
 
@@ -117,14 +121,22 @@ export function WorkspaceSettings({
   };
 
   const handleDeleteWorkspace = () => {
-    const isConfirmMatched = deleteConfirmText.trim() === 'Delete Workspace';
-    if (!isConfirmMatched || isDeleting) return;
+    if (deleteConfirmText.trim() !== 'Delete Workspace') return;
+    if (isDeleting) return;
     deleteWorkspaceMutate(
       { workspaceId },
       {
         onSuccess: () => {
           setDeleteConfirmText('');
-          onClose?.();
+          if (onClose) {
+            onClose();
+            return;
+          }
+          if (sessionUserId) {
+            router.push(`/dashboard/${sessionUserId}`);
+            return;
+          }
+          router.push('/dashboard');
         },
       },
     );
@@ -385,7 +397,7 @@ function WorkspaceDangerZoneSection({
             disabled={!isDeleteEnabled || isDeleting}
             className="h-10 rounded-xl border-red-200 px-6 text-red-600 transition-all active:scale-95 hover:bg-red-100 hover:text-red-700"
           >
-            Delete Workspace
+            {isDeleting ? 'Deleting...' : 'Delete Workspace'}
           </Button>
         </CardContent>
       </Card>
