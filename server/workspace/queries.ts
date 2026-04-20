@@ -96,3 +96,32 @@ export async function removeWorkspaceMember(
     });
   });
 }
+
+
+export async function deleteWorkspace(workspaceId: number, userId: string) {
+  const membership = await prisma.workspaceMember.findUnique({
+    where: {
+      userId_workspaceId: {
+        userId,
+        workspaceId,
+      },
+    },
+    select: {
+      role: true,
+    },
+  });
+
+  if (!membership) {
+    throw new Error('Not a workspace member');
+  }
+
+  if (membership.role !== 'OWNER') {
+    throw new Error('Only OWNER can delete workspace');
+  }
+
+  return prisma.workspace.delete({
+    where: {
+      id: workspaceId,
+    },
+  });
+}

@@ -32,6 +32,7 @@ import {
   useRemoveWorkspaceMemberMutation,
   useSearchUsers,
   useRenameWorkspaceMutation,
+  useDeleteWorkspaceMutation,
   useWorkspaceMembers,
 } from './tanstack-query-collection';
 import { useSession } from 'next-auth/react';
@@ -73,6 +74,7 @@ export function WorkspaceSettings({
 
   const { mutate: removeMemberMutate } = useRemoveWorkspaceMemberMutation();
   const { mutate: mutateWorkspaceName } = useRenameWorkspaceMutation();
+  const { mutate: deleteWorkspaceMutate } = useDeleteWorkspaceMutation();
   const { data: session } = useSession();
   const sessionUserId = session?.user.id || '';
 
@@ -111,7 +113,11 @@ export function WorkspaceSettings({
   };
 
   const handleDeleteWorkspace = () => {
-    console.log('delete workspace');
+    if (!Number.isInteger(workspaceId) || workspaceId < 1) {
+      return;
+    }
+
+    deleteWorkspaceMutate({ workspaceId });
   };
 
   return (
