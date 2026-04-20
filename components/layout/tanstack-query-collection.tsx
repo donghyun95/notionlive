@@ -7,6 +7,7 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { PendingInvitesfetch } from '@/lib/api/invite/pendingInviteFetch';
 import { acceptRejectFetch } from '@/lib/api/invite/acceptRejectFetch';
 import { WorkspaceMembersfetch } from '@/lib/api/getWorkspaceMemeberFetch';
+import { removeWorkspaceMemberFetch } from '@/lib/api/removeWorkspaceMemberFetch';
 
 type InviteRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
@@ -128,5 +129,37 @@ export function useWorkspaceMembers(workspaceId: number) {
     queryKey: ['workspaceMembers', workspaceId],
     queryFn: () => WorkspaceMembersfetch(workspaceId),
     enabled: !!workspaceId, // workspaceId 있을 때만 실행
+  });
+}
+
+type RemoveWorkspaceMemberVariables = {
+  workspaceId: number;
+  userId: string;
+};
+
+export function useRemoveWorkspaceMemberMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceId, userId }: RemoveWorkspaceMemberVariables) =>
+      removeWorkspaceMemberFetch({ workspaceId, userId }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['workspaceMembers', variables.workspaceId],
+      });
+      toast.success('Member removed', {
+        position: 'top-center',
+      });
+    },
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : '멤버 삭제에 실패했습니다.';
+
+      toast.error(errorMessage, {
+        position: 'top-center',
+      });
+    },
   });
 }

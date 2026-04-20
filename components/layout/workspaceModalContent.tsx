@@ -29,19 +29,21 @@ import { WorkspaceInviteMembersSection } from './WorkspaceInviteMembersSection';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   addMemberMutation,
+  useRemoveWorkspaceMemberMutation,
   useSearchUsers,
   useRenameWorkspaceMutation,
   useWorkspaceMembers,
 } from './tanstack-query-collection';
 import { useSession } from 'next-auth/react';
-type MemberRole = 'Admin' | 'Member' | 'Guest';
+type MemberRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
 type Member = {
   role: MemberRole;
-  joinedAt: string;
-  userId: string;
-  workspaceId: number;
-  user: object;
+  user: {
+    id: string;
+    name: string | null;
+    email: string;
+  };
 };
 type User = {
   id: string | number;
@@ -69,7 +71,7 @@ export function WorkspaceSettings({
   } = useWorkspaceMembers(workspaceId);
   console.log('workspaceMembers:', workspaceMembers);
 
-  const [members, setMembers] = useState<Member[]>(workspaceMembers);
+  const { mutate: removeMemberMutate } = useRemoveWorkspaceMemberMutation();
   const { mutate: mutateWorkspaceName } = useRenameWorkspaceMutation();
   const { data: session } = useSession();
   const sessionUserId = session?.user.id || '';
@@ -99,16 +101,13 @@ export function WorkspaceSettings({
     }
   };
 
-  const handleUpdateRole = (memberId: number, role: MemberRole) => {
-    setMembers((prev) =>
-      prev.map((member) =>
-        member.id === memberId ? { ...member, role } : member,
-      ),
-    );
-  };
+  const handleUpdateRole = (_memberId: string, _role: MemberRole) => {};
 
-  const handleRemoveMember = (memberId: number) => {
-    setMembers((prev) => prev.filter((member) => member.id !== memberId));
+  const handleRemoveMember = (memberId: string) => {
+    removeMemberMutate({
+      workspaceId,
+      userId: memberId,
+    });
   };
 
   const handleDeleteWorkspace = () => {
@@ -209,8 +208,8 @@ function WorkspaceIdentitySection({
 type WorkspaceMembersSectionProps = {
   members: Member[];
   totalCount: number;
-  onUpdateRole: (memberId: number, role: MemberRole) => void;
-  onRemoveMember: (memberId: number) => void;
+  onUpdateRole: (memberId: string, role: MemberRole) => void;
+  onRemoveMember: (memberId: string) => void;
 };
 
 function WorkspaceMembersSection({
@@ -246,11 +245,11 @@ function WorkspaceMembersSection({
 }
 
 type WorkspaceMemberItemProps = {
-  member: Member;
+  member: Member['user'];
   index: number;
-  onUpdateRole: (memberId: number, role: MemberRole) => void;
-  onRemoveMember: (memberId: number) => void;
-  role: string;
+  onUpdateRole: (memberId: string, role: MemberRole) => void;
+  onRemoveMember: (memberId: string) => void;
+  role: MemberRole;
 };
 
 function WorkspaceMemberItem({
@@ -299,8 +298,8 @@ function WorkspaceMemberItem({
             <SelectItem value="OWNER" className="rounded-lg">
               OWNER
             </SelectItem>
-            <SelectItem value="Member" className="rounded-lg">
-              Member
+            <SelectItem value="MEMBER" className="rounded-lg">
+              MEMBER
             </SelectItem>
           </SelectContent>
         </Select>

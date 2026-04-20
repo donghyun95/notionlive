@@ -50,3 +50,48 @@ export async function getWorkspaceMembers(workspaceId: number) {
     },
   });
 }
+
+export async function removeWorkspaceMember(
+  workspaceId: number,
+  userId: string,
+) {
+  return prisma.$transaction(async (tx) => {
+    const membership = await tx.workspaceMember.findUnique({
+      where: {
+        userId_workspaceId: {
+          userId,
+          workspaceId,
+        },
+      },
+      select: {
+        role: true,
+      },
+    });
+
+    if (!membership) {
+      throw new Error('Member not found');
+    }
+
+    if (membership.role === 'OWNER') {
+      const ownerCount = await tx.workspaceMember.count({
+        where: {
+          workspaceId,
+          role: 'OWNER',
+        },
+      });
+
+      if (ownerCount <= 1) {
+        throw new Error('At least one OWNER must remain in this workspace');
+      }
+    }
+
+    return tx.workspaceMember.delete({
+      where: {
+        userId_workspaceId: {
+          userId,
+          workspaceId,
+        },
+      },
+    });
+  });
+}
