@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Save,
@@ -31,6 +32,7 @@ import {
   addMemberMutation,
   useRemoveWorkspaceMemberMutation,
   useSearchUsers,
+  useDeleteWorkspaceMutation,
   useRenameWorkspaceMutation,
   useWorkspaceMembers,
 } from './tanstack-query-collection';
@@ -54,9 +56,11 @@ type User = {
 export function WorkspaceSettings({
   workspaceId,
   workspaceNameProps,
+  onClose,
 }: {
   workspaceId: number;
   workspaceNameProps: string;
+  onClose?: () => void;
 }) {
   const [workspaceName, setWorkspaceName] = useState(workspaceNameProps);
   const [inviteKeyword, setInviteKeyword] = useState('');
@@ -73,7 +77,9 @@ export function WorkspaceSettings({
 
   const { mutate: removeMemberMutate } = useRemoveWorkspaceMemberMutation();
   const { mutate: mutateWorkspaceName } = useRenameWorkspaceMutation();
+  const { mutate: deleteWorkspaceMutate } = useDeleteWorkspaceMutation();
   const { data: session } = useSession();
+  const router = useRouter();
   const sessionUserId = session?.user.id || '';
 
   const handleSaveWorkspaceName = () => {
@@ -111,7 +117,20 @@ export function WorkspaceSettings({
   };
 
   const handleDeleteWorkspace = () => {
-    console.log('delete workspace');
+    deleteWorkspaceMutate(
+      { workspaceId },
+      {
+        onSuccess: () => {
+          setWorkspaceName('');
+          setInviteKeyword('');
+          setSelectedUser(null);
+          onClose?.();
+          if (session?.user.id) {
+            router.push(`/dashboard/${session.user.id}`);
+          }
+        },
+      },
+    );
   };
 
   return (

@@ -24,6 +24,7 @@ export function WorkspaceSettingsDialog({
         <WorkspaceSettings
           workspaceId={workspaceId}
           workspaceNameProps={workspaceName}
+          onClose={() => onOpenChange(false)}
         />
       </DialogContent>
     </Dialog>
