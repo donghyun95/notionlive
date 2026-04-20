@@ -79,10 +79,8 @@ export function WorkspaceSettings({
 
   const { mutate: removeMemberMutate } = useRemoveWorkspaceMemberMutation();
   const { mutate: mutateWorkspaceName } = useRenameWorkspaceMutation();
-  const {
-    mutate: deleteWorkspaceMutate,
-    isPending: isDeleting,
-  } = useDeleteWorkspaceMutation();
+  const { mutate: deleteWorkspaceMutate, isPending: isDeleting } =
+    useDeleteWorkspaceMutation();
   const { data: session } = useSession();
   const sessionUserId = session?.user.id || '';
 
@@ -128,10 +126,6 @@ export function WorkspaceSettings({
       {
         onSuccess: () => {
           setDeleteConfirmText('');
-          if (onClose) {
-            onClose();
-            return;
-          }
           if (sessionUserId) {
             router.push(`/dashboard/${sessionUserId}`);
             return;
@@ -259,7 +253,7 @@ function WorkspaceMembersSection({
           Member Management
         </span>
         <span className="text-xs font-medium text-on-surface-variant">
-          3 Active Members
+          {totalCount} Active Members
         </span>
       </div>
       <div className="bg-surface-container-low rounded-xl overflow-hidden">
@@ -280,7 +274,7 @@ function WorkspaceMembersSection({
 }
 
 type WorkspaceMemberItemProps = {
-  member: Member['user'];
+  member: User;
   index: number;
   onUpdateRole: (memberId: string, role: MemberRole) => void;
   onRemoveMember: (memberId: string) => void;
@@ -306,7 +300,9 @@ function WorkspaceMemberItem({
     >
       <div className="flex items-center gap-3 overflow-hidden">
         <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6dXKY0NLt-wbTp4du0s3Y5Iqf1k3-LTDr9_f3_59M462W-90Zl9xq1YQD8H1hV4tBNddCzaQCgEP782gl-sCW6ZH-tfyKHctX3jgnHJ_HcyJzj-V6L730E2ciN30OAnU5mqMbTBC3kal6LRlr7zMTA7RGEF-M4Nr_kbu2g9FqU9OIfbJiO5y_EwhS0Gg-xZmKCtRHbBjpfBQ8zKIdEVWEwSOFKydp6fVgwZweTiKirB-2_uKa0laGA8G00xqBulaV2cGGuuEhwdpP"
+          src={
+            member.image || `https://ui-avatars.com/api/?name=${member.name}`
+          }
           alt="Emma Lee"
           className="w-10 h-10 rounded-full object-cover"
         />
@@ -387,9 +383,6 @@ function WorkspaceDangerZoneSection({
             className="mb-2 h-10 rounded-xl border-red-200 bg-white/80 text-red-900 placeholder:text-red-400/70 focus-visible:ring-red-300"
             placeholder="Delete Workspace"
           />
-          <p className="mb-4 text-xs text-red-700/70">
-            삭제하려면 Delete Workspace를 입력하세요.
-          </p>
 
           <Button
             variant="outline"

@@ -154,9 +154,7 @@ export function useRemoveWorkspaceMemberMutation() {
     },
     onError: (error) => {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : '멤버 삭제에 실패했습니다.';
+        error instanceof Error ? error.message : '멤버 삭제에 실패했습니다.';
 
       toast.error(errorMessage, {
         position: 'top-center',
@@ -182,15 +180,7 @@ export function useDeleteWorkspaceMutation() {
       queryClient.invalidateQueries({
         queryKey: ['workspaceMembers', variables.workspaceId],
       });
-
-      const hasWorkspacesQuery = queryClient
-        .getQueryCache()
-        .find({ queryKey: ['workspaces'] });
-      if (hasWorkspacesQuery) {
-        queryClient.invalidateQueries({
-          queryKey: ['workspaces'],
-        });
-      }
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
 
       toast.success('Workspace deleted', {
         position: 'top-center',
@@ -198,9 +188,7 @@ export function useDeleteWorkspaceMutation() {
     },
     onError: (error) => {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Failed to delete workspace.';
+        error instanceof Error ? error.message : 'Failed to delete workspace.';
 
       toast.error(errorMessage, {
         position: 'top-center',
