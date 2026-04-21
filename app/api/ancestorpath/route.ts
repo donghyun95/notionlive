@@ -27,6 +27,11 @@ export async function GET(req: NextRequest) {
     }
   } catch (error) {
     console.error(error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+
+    if (message === 'PAGE_NOT_FOUND_OR_DELETED') {
+      return NextResponse.json({ error: message }, { status: 404 });
+    }
 
     return NextResponse.json(
       { error: 'INTERNAL_SERVER_ERROR' },

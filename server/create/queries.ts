@@ -46,6 +46,7 @@ export async function createPage(userID: string, parentID: number | null) {
         where: {
           id: parentID,
           workspaceId: workspace.id,
+          deletedAt: null,
         },
         select: {
           id: true,
@@ -98,6 +99,7 @@ export async function getPageAncestorPath(
   let current = await prisma.page.findFirst({
     where: {
       id: pageId,
+      deletedAt: null,
       workspace: {
         members: {
           some: {
@@ -116,12 +118,15 @@ export async function getPageAncestorPath(
   });
   const workspaceID = current?.workspaceId;
   if (!current) {
-    throw new Error(`Page not found: ${pageId}`);
+    throw new Error('PAGE_NOT_FOUND_OR_DELETED');
   }
 
   while (current.parentId !== null) {
-    current = await prisma.page.findUnique({
-      where: { id: current.parentId },
+    current = await prisma.page.findFirst({
+      where: {
+        id: current.parentId,
+        deletedAt: null,
+      },
       select: {
         id: true,
         title: true,
@@ -132,7 +137,7 @@ export async function getPageAncestorPath(
     });
 
     if (!current) {
-      throw new Error('Broken page tree: parent page not found');
+      throw new Error('PAGE_NOT_FOUND_OR_DELETED');
     }
 
     path.push(current.id);
@@ -196,6 +201,7 @@ export async function createWorkSpacePage(
         where: {
           id: parentID,
           workspaceId: workspaceID,
+          deletedAt: null,
         },
         select: {
           id: true,
