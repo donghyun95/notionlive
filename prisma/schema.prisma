@@ -68,6 +68,7 @@ model User {
 
   memberships WorkspaceMember[]
   pages       Page[]            @relation("PageAuthor")
+  deletedPages Page[]           @relation("PageDeleter")
 
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
@@ -124,6 +125,9 @@ model Page {
   updatedAt   DateTime  @updatedAt
   ispublished  Boolean   @default(false)
   publictoken String?   @unique
+  deletedAt   DateTime?
+  deletedBy   String?
+  deletedByUser User?   @relation("PageDeleter", fields: [deletedBy], references: [id], onDelete: SetNull)
 
 
   snapshots PageSnapshot[]
@@ -131,7 +135,9 @@ model Page {
   @@index([workspaceId])
   @@index([parentId])
   @@index([authorId])
+  @@index([deletedBy])
   @@index([workspaceId, parentId, order])
+  @@index([workspaceId, parentId, order, deletedAt])
 }
 
 model PageSnapshot {
