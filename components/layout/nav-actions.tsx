@@ -37,25 +37,9 @@ import {
 } from '@/components/ui/sidebar';
 import { NotificationButton } from './informButton';
 import { PublishButton } from './publish-Button';
-import { useSelectedData } from '@/app/Providers/ClientDataProvider';
-import { useTrashPageMutation } from './tanstack-query-collection';
-import { useSession } from 'next-auth/react';
 
 export function NavActions() {
   const [isOpen, setIsOpen] = React.useState(false);
-  const pageNodeID = useSelectedData((state) => state.pageNodeID);
-  const { data: session } = useSession();
-  const trashPageMutation = useTrashPageMutation();
-
-  const handleMoveToTrash = () => {
-    if (!pageNodeID || trashPageMutation.isPending) return;
-
-    trashPageMutation.mutate({
-      pageId: Number(pageNodeID),
-      userId: session?.user.id,
-    });
-    setIsOpen(false);
-  };
 
   return (
     <div className="flex min-w-0 items-center justify-end gap-1 sm:gap-2 text-sm">
@@ -95,12 +79,8 @@ export function NavActions() {
                 <SidebarGroupContent className="gap-0">
                   <SidebarMenu>
                     <SidebarMenuItem>
-                      <SidebarMenuButton
-                        onClick={handleMoveToTrash}
-                        disabled={trashPageMutation.isPending}
-                      >
-                        <Trash2 />
-                        <span>Move to Trash</span>
+                      <SidebarMenuButton>
+                        <Trash2 /> <span>Move to Trash</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   </SidebarMenu>

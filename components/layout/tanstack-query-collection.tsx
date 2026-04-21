@@ -10,7 +10,6 @@ import { WorkspaceMembersfetch } from '@/lib/api/getWorkspaceMemeberFetch';
 import { removeWorkspaceMemberFetch } from '@/lib/api/removeWorkspaceMemberFetch';
 import { deleteWorkspaceFetch } from '@/lib/api/deleteWorkspaceFetch';
 import { updateWorkspaceMemberRoleFetch } from '@/lib/api/updateWorkspaceMemberRoleFetch';
-import { restorePageFetch, trashPageFetch } from '@/lib/api/pageTrashFetch';
 
 type InviteRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
@@ -232,56 +231,4 @@ export function useUpdateWorkspaceMemberRoleMutation() {
       });
     },
   });
-}
-
-
-type PageTreeMutationVariables = {
-  pageId: number;
-  userId?: string;
-};
-
-type PageMutationMode = 'trash' | 'restore';
-
-function invalidatePageMutationQueries(
-  queryClient: ReturnType<typeof useQueryClient>,
-  variables: PageTreeMutationVariables,
-) {
-  return Promise.all([
-    queryClient.invalidateQueries({ queryKey: ['initialPage', variables.userId] }),
-    queryClient.invalidateQueries({ queryKey: ['page', variables.pageId] }),
-  ]);
-}
-
-function usePageTreeMutation(mode: PageMutationMode) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ pageId }: PageTreeMutationVariables) =>
-      mode === 'trash' ? trashPageFetch(pageId) : restorePageFetch(pageId),
-    onError: (error) => {
-      const defaultMessage =
-        mode === 'trash'
-          ? '페이지 삭제에 실패했습니다.'
-          : '페이지 복구에 실패했습니다.';
-
-      toast.error(error instanceof Error ? error.message : defaultMessage, {
-        position: 'top-center',
-      });
-    },
-    onSuccess: async (_data, variables) => {
-      await invalidatePageMutationQueries(queryClient, variables);
-
-      toast.success(mode === 'trash' ? 'Page moved to trash' : 'Page restored', {
-        position: 'top-center',
-      });
-    },
-  });
-}
-
-export function useTrashPageMutation() {
-  return usePageTreeMutation('trash');
-}
-
-export function useRestorePageMutation() {
-  return usePageTreeMutation('restore');
 }
