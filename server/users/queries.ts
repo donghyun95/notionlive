@@ -4,8 +4,6 @@ import { createId } from '@paralleldrive/cuid2';
 import { WorkspaceType, WorkspaceRole } from '@prisma/client';
 import { generatePremiumHexColor } from '@/lib/common';
 
-const activePageWhere = { deletedAt: null };
-
 export async function getUsers() {
   return prisma.user.findMany({
     select: {
@@ -101,7 +99,6 @@ export async function getSidebarData(userId: string) {
   if (personalWorkspace) {
     const rootPages = await prisma.page.findMany({
       where: {
-        ...activePageWhere,
         workspaceId: personalWorkspace.id,
         parentId: null,
       },
@@ -118,7 +115,6 @@ export async function getSidebarData(userId: string) {
     teamWorkspaces.map(async (workspace) => {
       const rootPages = await prisma.page.findMany({
         where: {
-          ...activePageWhere,
           workspaceId: workspace.id,
           parentId: null,
         },
@@ -141,7 +137,6 @@ export async function getSidebarData(userId: string) {
 export async function getChildrenPageByParentsId(parentId: number) {
   const ChildrenPage = await prisma.page.findMany({
     where: {
-      ...activePageWhere,
       parentId,
     },
   });
@@ -150,7 +145,7 @@ export async function getChildrenPageByParentsId(parentId: number) {
 
 export async function getWorkSpacePageByWorkSpaceId(workspaceId: number) {
   const RootPage = await prisma.page.findMany({
-    where: { ...activePageWhere, workspaceId, parentId: null },
+    where: { workspaceId, parentId: null },
   });
   console.log('RootPage', RootPage);
   return RootPage;
@@ -209,7 +204,6 @@ export async function getPagePartRooms(userId: string, pageId: number) {
 export async function getSelfandChildren(userId: string, pageId: number) {
   const self = await prisma.page.findFirst({
     where: {
-      ...activePageWhere,
       id: pageId,
       workspace: {
         members: {
@@ -221,7 +215,6 @@ export async function getSelfandChildren(userId: string, pageId: number) {
 
   const children = await prisma.page.findMany({
     where: {
-      ...activePageWhere,
       parentId: pageId,
       workspace: {
         members: {
