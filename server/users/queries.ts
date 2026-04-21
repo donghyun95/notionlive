@@ -275,8 +275,8 @@ export async function getUserPageAccess(
   userId: string | null | undefined,
   pageId: number,
 ): Promise<PageAccessResult> {
-  const page = await prisma.page.findUnique({
-    where: { id: pageId },
+  const page = await prisma.page.findFirst({
+    where: { id: pageId, deletedAt: null },
     select: {
       id: true,
       workspaceId: true,
@@ -343,8 +343,8 @@ export async function getUserPageAccess(
 }
 
 export async function assertPagePublished(pageId: number) {
-  const page = await prisma.page.findUnique({
-    where: { id: pageId },
+  const page = await prisma.page.findFirst({
+    where: { id: pageId, deletedAt: null },
     select: {
       id: true,
       ispublished: true,
