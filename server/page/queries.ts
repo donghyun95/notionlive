@@ -1,8 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import { randomUUID } from 'crypto';
+
+const activePageWhere = { deletedAt: null };
+
 export const getPagePublicInfo = async (pageId: number) => {
-  return await prisma.page.findUnique({
-    where: { id: pageId },
+  return await prisma.page.findFirst({
+    where: { ...activePageWhere, id: pageId },
   });
 };
 
@@ -31,8 +34,9 @@ export const togglePublishPage = async (pageId: number) => {
   return updated;
 };
 export const findPageByPublicToken = async (token: string) => {
-  const page = await prisma.page.findUnique({
+  const page = await prisma.page.findFirst({
     where: {
+      ...activePageWhere,
       publictoken: token,
     },
   });
