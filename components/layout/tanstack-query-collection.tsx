@@ -10,7 +10,6 @@ import { WorkspaceMembersfetch } from '@/lib/api/getWorkspaceMemeberFetch';
 import { removeWorkspaceMemberFetch } from '@/lib/api/removeWorkspaceMemberFetch';
 import { deleteWorkspaceFetch } from '@/lib/api/deleteWorkspaceFetch';
 import { updateWorkspaceMemberRoleFetch } from '@/lib/api/updateWorkspaceMemberRoleFetch';
-import { deletePageFetch } from '@/lib/api/deletePageFetch';
 
 type InviteRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
@@ -225,47 +224,7 @@ export function useUpdateWorkspaceMemberRoleMutation() {
     },
     onError: (error) => {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : '멤버 권한 수정에 실패했습니다.';
-
-      toast.error(errorMessage, {
-        position: 'top-center',
-      });
-    },
-  });
-}
-
-type DeletePageVariables = {
-  pageId: number;
-};
-
-export function useDeletePageMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ pageId }: DeletePageVariables) => deletePageFetch(pageId),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ['initialPage'],
-      });
-      queryClient.removeQueries({
-        queryKey: ['page'],
-      });
-      queryClient.removeQueries({
-        queryKey: ['ancestorPath'],
-      });
-      queryClient.removeQueries({
-        queryKey: ['pagePublicInfo', variables.pageId],
-      });
-
-      toast.success('Page deleted', {
-        position: 'top-center',
-      });
-    },
-    onError: (error) => {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Failed to delete page.';
+        error instanceof Error ? error.message : '멤버 권한 수정에 실패했습니다.';
 
       toast.error(errorMessage, {
         position: 'top-center',
