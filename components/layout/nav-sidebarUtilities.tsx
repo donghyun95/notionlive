@@ -1,9 +1,12 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
-import { Star, Trash2, Inbox, CircleQuestionMark } from 'lucide-react';
-import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import {
+  Plus,
+  FileText,
+  Star,
+  Trash2,
+  Inbox,
+  CircleQuestionMark,
+} from 'lucide-react';
 const utilityItemClass = `
   w-full justify-start gap-3
   px-3 py-2 h-auto
@@ -30,10 +33,6 @@ export function SidebarTopUtilities() {
   );
 }
 export function SidebarBottomUtiltiy() {
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
-  const trashHref = userId ? `/dashboard/${userId}?view=trash` : '/dashboard';
-
   return (
     <div className="space-y-1 py-2 px-2">
       {/* <Button
@@ -57,11 +56,9 @@ export function SidebarBottomUtiltiy() {
         <span>Help</span>
       </Button>
 
-      <Button variant="ghost" asChild className={utilityItemClass}>
-        <Link href={trashHref}>
-          <Trash2 className="w-5 h-5" />
-          <span>Trash</span>
-        </Link>
+      <Button variant="ghost" className={utilityItemClass}>
+        <Trash2 className="w-5 h-5" />
+        <span>Trash</span>
       </Button>
     </div>
   );

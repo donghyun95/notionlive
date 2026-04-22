@@ -71,30 +71,6 @@ async function assertWorkspaceOwner(
   }
 }
 
-async function assertWorkspaceMember(
-  tx: Prisma.TransactionClient,
-  workspaceId: number,
-  userId: string,
-) {
-  const membership = await tx.workspaceMember.findUnique({
-    where: {
-      userId_workspaceId: {
-        userId,
-        workspaceId,
-      },
-    },
-    select: {
-      role: true,
-    },
-  });
-
-  if (!membership) {
-    throw new Error('Not a workspace member');
-  }
-
-  return membership;
-}
-
 async function collectDescendantIds(
   tx: Prisma.TransactionClient,
   workspaceId: number,
@@ -205,77 +181,6 @@ export async function restorePageWithDescendants(pageId: number, userId: string)
     return {
       pageId,
       restoredCount: restored.count,
-    };
-  });
-}
-
-export async function getWorkspaceTrashPages(workspaceId: number, userId: string) {
-  return prisma.$transaction(async (tx) => {
-    await assertWorkspaceMember(tx, workspaceId, userId);
-
-    return tx.page.findMany({
-      where: {
-        workspaceId,
-        deletedAt: {
-          not: null,
-        },
-      },
-      orderBy: {
-        deletedAt: 'desc',
-      },
-      select: {
-        id: true,
-        title: true,
-        icon: true,
-        parentId: true,
-        workspaceId: true,
-        deletedAt: true,
-        updatedAt: true,
-      },
-    });
-  });
-}
-
-export async function permanentlyDeletePageWithDescendants(
-  pageId: number,
-  userId: string,
-) {
-  return prisma.$transaction(async (tx) => {
-    const page = await tx.page.findFirst({
-      where: {
-        id: pageId,
-      },
-      select: {
-        id: true,
-        workspaceId: true,
-        deletedAt: true,
-      },
-    });
-
-    if (!page || !page.deletedAt) {
-      throw new Error('Page not found');
-    }
-
-    await assertWorkspaceOwner(tx, page.workspaceId, userId);
-
-    const targetIds = await collectDescendantIds(tx, page.workspaceId, page.id, {
-      includeDeleted: true,
-    });
-
-    const deleted = await tx.page.deleteMany({
-      where: {
-        id: {
-          in: targetIds,
-        },
-        deletedAt: {
-          not: null,
-        },
-      },
-    });
-
-    return {
-      pageId,
-      permanentlyDeletedCount: deleted.count,
     };
   });
 }
