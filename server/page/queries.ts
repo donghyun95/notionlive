@@ -75,6 +75,9 @@ async function collectDescendantIds(
   tx: Prisma.TransactionClient,
   workspaceId: number,
   rootPageId: number,
+  options?: {
+    includeDeleted?: boolean;
+  },
 ): Promise<number[]> {
   const allIds: number[] = [rootPageId];
   let frontier: number[] = [rootPageId];
@@ -84,7 +87,7 @@ async function collectDescendantIds(
       where: {
         workspaceId,
         parentId: { in: frontier },
-        deletedAt: null,
+        ...(options?.includeDeleted ? {} : { deletedAt: null }),
       },
       select: { id: true },
     });
@@ -135,6 +138,49 @@ export async function softDeletePageWithDescendants(pageId: number, userId: stri
     return {
       pageId,
       deletedCount: updated.count,
+    };
+  });
+}
+
+export async function restorePageWithDescendants(pageId: number, userId: string) {
+  return prisma.$transaction(async (tx) => {
+    const page = await tx.page.findFirst({
+      where: {
+        id: pageId,
+      },
+      select: {
+        id: true,
+        workspaceId: true,
+        deletedAt: true,
+      },
+    });
+
+    if (!page || !page.deletedAt) {
+      throw new Error('Page not found');
+    }
+
+    await assertWorkspaceOwner(tx, page.workspaceId, userId);
+
+    const targetIds = await collectDescendantIds(tx, page.workspaceId, page.id, {
+      includeDeleted: true,
+    });
+
+    const restored = await tx.page.updateMany({
+      where: {
+        id: { in: targetIds },
+        deletedAt: {
+          not: null,
+        },
+      },
+      data: {
+        deletedAt: null,
+        deletedBy: null,
+      },
+    });
+
+    return {
+      pageId,
+      restoredCount: restored.count,
     };
   });
 }
