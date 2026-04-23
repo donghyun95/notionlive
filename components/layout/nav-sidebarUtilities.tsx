@@ -1,5 +1,13 @@
 import { Button } from '@/components/ui/button';
 import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import {
   Plus,
   FileText,
   Star,
@@ -56,10 +64,22 @@ export function SidebarBottomUtiltiy() {
         <span>Help</span>
       </Button>
 
-      <Button variant="ghost" className={utilityItemClass}>
-        <Trash2 className="w-5 h-5" />
-        <span>Trash</span>
-      </Button>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="ghost" className={utilityItemClass}>
+            <Trash2 className="w-5 h-5" />
+            <span>Trash</span>
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Trash</DialogTitle>
+            <DialogDescription>
+              Deleted pages will appear here.
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
