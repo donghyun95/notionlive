@@ -10,6 +10,7 @@ import { WorkspaceMembersfetch } from '@/lib/api/getWorkspaceMemeberFetch';
 import { removeWorkspaceMemberFetch } from '@/lib/api/removeWorkspaceMemberFetch';
 import { deleteWorkspaceFetch } from '@/lib/api/deleteWorkspaceFetch';
 import { updateWorkspaceMemberRoleFetch } from '@/lib/api/updateWorkspaceMemberRoleFetch';
+import { getPersonalDeletedPagesFetch } from '@/lib/api/getPersonalDeletedPagesFetch';
 
 type InviteRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
@@ -230,5 +231,12 @@ export function useUpdateWorkspaceMemberRoleMutation() {
         position: 'top-center',
       });
     },
+  });
+}
+
+export function usePersonalDeletedPages() {
+  return useQuery({
+    queryKey: ['personalDeletedPages'],
+    queryFn: getPersonalDeletedPagesFetch,
   });
 }
