@@ -154,6 +154,36 @@ export async function getWorkSpacePageByWorkSpaceId(workspaceId: number) {
   return RootPage;
 }
 
+export async function getSoftDeletedPagesInPersonalWorkspace(userId: string) {
+  const personalMembership = await prisma.workspaceMember.findFirst({
+    where: {
+      userId,
+      workspace: {
+        type: WorkspaceType.PERSONAL,
+      },
+    },
+    select: {
+      workspaceId: true,
+    },
+  });
+
+  if (!personalMembership) {
+    throw new Error('PERSONAL_WORKSPACE_NOT_FOUND');
+  }
+
+  return prisma.page.findMany({
+    where: {
+      workspaceId: personalMembership.workspaceId,
+      deletedAt: {
+        not: null,
+      },
+    },
+    orderBy: {
+      deletedAt: 'desc',
+    },
+  });
+}
+
 export async function getPagePartRooms(userId: string, pageId: number) {
   return prisma.page.findMany({
     where: {
