@@ -27,7 +27,7 @@ export function PublishButton({}: any) {
     queryFn: () => pagePublicInfoFetch(pageNodeID),
     enabled: !!pageNodeID,
   });
-
+  console.log(pageNodeID, '페이지 아이디');
   const toggleMutation = useMutation({
     mutationFn: (pageId: number) => togglePublishFetch(pageId),
     onSuccess: (data, pageId) => {
