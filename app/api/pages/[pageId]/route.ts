@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { softDeletePageWithDescendants } from '@/server/page/queries';
+import {
+  hardDeletePageWithDescendants,
+  softDeletePageWithDescendants,
+} from '@/server/page/queries';
 import { getSelfandChildren } from '@/server/users/queries';
 import { auth } from '@/lib/auth';
 
@@ -59,7 +62,16 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: 'INVALID_PAGE_ID' }, { status: 400 });
     }
 
-    const result = await softDeletePageWithDescendants(parsedPageId, userId);
+    const hardDeleteParam = req.nextUrl.searchParams.get('hardDelete');
+
+    if (hardDeleteParam && hardDeleteParam !== 'true' && hardDeleteParam !== 'false') {
+      return NextResponse.json({ error: 'INVALID_HARD_DELETE_OPTION' }, { status: 400 });
+    }
+
+    const shouldHardDelete = hardDeleteParam === 'true';
+    const result = shouldHardDelete
+      ? await hardDeletePageWithDescendants(parsedPageId, userId)
+      : await softDeletePageWithDescendants(parsedPageId, userId);
 
     return NextResponse.json(result);
   } catch (error) {
