@@ -1,11 +1,13 @@
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
+  DialogClose,
   DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   Plus,
@@ -40,7 +42,16 @@ export function SidebarTopUtilities() {
     </div>
   );
 }
-export function SidebarBottomUtiltiy() {
+
+type SidebarBottomUtilityProps = {
+  onOpenTrashPage?: () => void;
+  onEmptyTrash?: () => void;
+};
+
+export function SidebarBottomUtiltiy({
+  onOpenTrashPage,
+  onEmptyTrash,
+}: SidebarBottomUtilityProps) {
   return (
     <div className="space-y-1 py-2 px-2">
       {/* <Button
@@ -75,9 +86,18 @@ export function SidebarBottomUtiltiy() {
           <DialogHeader>
             <DialogTitle>Trash</DialogTitle>
             <DialogDescription>
-              Deleted pages will appear here.
+              삭제된 페이지를 확인하거나 복구할 수 있습니다.
             </DialogDescription>
           </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">취소</Button>
+            </DialogClose>
+            <Button onClick={onOpenTrashPage}>휴지통 보기</Button>
+            <Button variant="destructive" onClick={onEmptyTrash}>
+              비우기
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
