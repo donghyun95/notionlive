@@ -54,22 +54,6 @@ export function SidebarBottomUtiltiy({
 }: SidebarBottomUtilityProps) {
   return (
     <div className="space-y-1 py-2 px-2">
-      {/* <Button
-        className="
-    w-full mb-2 py-2.5 px-4 
-    bg-gradient-to-br from-[#4e45e4] to-[#4135d8]
-    text-white rounded-xl font-semibold text-sm
-    shadow-sm
-    hover:shadow-md
-    hover:brightness-110
-    active:scale-[0.98]
-    transition-all duration-200
-  "
-      >
-        <span className="text-sm">New Page</span>
-        <Plus className="h-4 w-4" />
-      </Button> */}
-
       <Button variant="ghost" className={utilityItemClass}>
         <CircleQuestionMark className="w-5 h-5" />
         <span>Help</span>
