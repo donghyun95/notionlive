@@ -71,7 +71,7 @@ export function SidebarBottomUtiltiy() {
             <span>Trash</span>
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="min-w-[40vw] min-h-[40vh] overflow-hidden border border-zinc-200 bg-white p-0 text-black shadow-2xl sm:max-w-[460px] dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100">
           <DialogHeader>
             <DialogTitle>Trash</DialogTitle>
             <DialogDescription>
