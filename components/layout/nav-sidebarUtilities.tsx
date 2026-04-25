@@ -38,7 +38,9 @@ function DeletedPageRow({
   return (
     <div className="flex h-12 w-full items-center justify-between rounded-lg border border-[#d9ddd3] px-3 transition-colors duration-200 hover:bg-[#f4f5f1]">
       <div className="mr-3 flex min-w-0 items-center gap-2 text-[#5c605a]">
-        <span className="shrink-0">{page.icon ?? <FileText className="h-4 w-4" />}</span>
+        <span className="shrink-0">
+          {page.icon ?? <FileText className="h-4 w-4" />}
+        </span>
         <span className="truncate text-sm font-medium" title={page.title}>
           {page.title}
         </span>
@@ -188,7 +190,6 @@ export function SidebarBottomUtiltiy({
             <DialogClose asChild>
               <Button variant="outline">취소</Button>
             </DialogClose>
-            <Button onClick={onOpenTrashPage}>휴지통 보기</Button>
             <Button variant="destructive" onClick={onEmptyTrash}>
               비우기
             </Button>
