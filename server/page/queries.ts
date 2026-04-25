@@ -99,7 +99,10 @@ async function collectDescendantIds(
   return allIds;
 }
 
-export async function softDeletePageWithDescendants(pageId: number, userId: string) {
+export async function softDeletePageWithDescendants(
+  pageId: number,
+  userId: string,
+) {
   return prisma.$transaction(async (tx) => {
     const page = await tx.page.findFirst({
       where: {
@@ -139,12 +142,15 @@ export async function softDeletePageWithDescendants(pageId: number, userId: stri
   });
 }
 
-export async function hardDeletePageWithDescendants(pageId: number, userId: string) {
+export async function hardDeletePageWithDescendants(
+  pageId: number,
+  userId: string,
+) {
   return prisma.$transaction(async (tx) => {
     const page = await tx.page.findFirst({
       where: {
         id: pageId,
-        deletedAt: null,
+        // deletedAt: null,
       },
       select: {
         id: true,
@@ -168,6 +174,37 @@ export async function hardDeletePageWithDescendants(pageId: number, userId: stri
     return {
       pageId,
       deletedCount: deleted.count,
+    };
+  });
+}
+
+export async function hardDeleteSinglePage(pageId: number, userId: string) {
+  return prisma.$transaction(async (tx) => {
+    const page = await tx.page.findFirst({
+      where: {
+        id: pageId,
+      },
+      select: {
+        id: true,
+        workspaceId: true,
+      },
+    });
+
+    if (!page) {
+      throw new Error('Page not found');
+    }
+
+    await assertWorkspaceOwner(tx, page.workspaceId, userId);
+
+    await tx.page.delete({
+      where: {
+        id: pageId,
+      },
+    });
+
+    return {
+      pageId,
+      deleted: true,
     };
   });
 }

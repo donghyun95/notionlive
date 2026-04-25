@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
   hardDeletePageWithDescendants,
+  hardDeleteSinglePage,
   softDeletePageWithDescendants,
 } from '@/server/page/queries';
 import { getSelfandChildren } from '@/server/users/queries';
@@ -63,12 +64,23 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
     }
 
     const hardDeleteParam = req.nextUrl.searchParams.get('hardDelete');
-
-    if (hardDeleteParam && hardDeleteParam !== 'true' && hardDeleteParam !== 'false') {
-      return NextResponse.json({ error: 'INVALID_HARD_DELETE_OPTION' }, { status: 400 });
+    const workSpaceType = req.nextUrl.searchParams.get('type');
+    if (
+      hardDeleteParam &&
+      hardDeleteParam !== 'true' &&
+      hardDeleteParam !== 'false'
+    ) {
+      return NextResponse.json(
+        { error: 'INVALID_HARD_DELETE_OPTION' },
+        { status: 400 },
+      );
     }
 
     const shouldHardDelete = hardDeleteParam === 'true';
+    if (workSpaceType === 'personal') {
+      await hardDeleteSinglePage(parsedPageId, userId);
+      return NextResponse.json({ pageId: parsedPageId, deletedCount: 1 });
+    }
     const result = shouldHardDelete
       ? await hardDeletePageWithDescendants(parsedPageId, userId)
       : await softDeletePageWithDescendants(parsedPageId, userId);

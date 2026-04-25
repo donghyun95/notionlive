@@ -44,7 +44,10 @@ import {
   SidebarTopUtilities,
 } from './nav-sidebarUtilities';
 import TeamSpace from './TeamSpace/TeamSpace';
-import { usePersonalDeletedPages } from './tanstack-query-collection';
+import {
+  useHardDeletePageMutation,
+  usePersonalDeletedPages,
+} from './tanstack-query-collection';
 
 const isPositiveInt = (n) => Number.isInteger(n) && n > 0;
 
@@ -59,6 +62,7 @@ export function AppSidebar({
   const pageNodeID = useSelectedData((state) => state.pageNodeID);
   const setNodeopenBatch = useSelectedData((state) => state.setNodesOpenBatch);
   const setNodeOpen = useSelectedData((state) => state.setNodeOpen);
+
   if (!searchParamsPageId) {
   }
   const userId = session?.user.id;
@@ -71,6 +75,12 @@ export function AppSidebar({
     staleTime: 1000 * 30,
   });
   const { data: deletePage } = usePersonalDeletedPages();
+  const hardDeletePageMutation = useHardDeletePageMutation();
+  const handleDeletePage = (variable: any) => {
+    hardDeletePageMutation.mutate(variable);
+  };
+  console.log(handleDeletePage, 'handleDeletePage in app sidebar');
+  console.log(deletePage, 'deleted pages in sidebar');
   const { data: ancestorPath } = useQuery({
     queryKey: [
       'ancestorPath',
@@ -114,7 +124,10 @@ export function AppSidebar({
         <NavWorkspaces workspaces={user.workspaces} userId={userId} />
         <Separator className="my-1 bg-stone-200" />
         <NavPersonalSpace pages={user.personal.rootPages} />
-        <SidebarBottomUtiltiy deletePage={deletePage} />
+        <SidebarBottomUtiltiy
+          deletePage={deletePage}
+          onDeletePage={handleDeletePage}
+        />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

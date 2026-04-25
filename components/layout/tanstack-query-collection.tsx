@@ -12,7 +12,7 @@ import { deleteWorkspaceFetch } from '@/lib/api/deleteWorkspaceFetch';
 import { updateWorkspaceMemberRoleFetch } from '@/lib/api/updateWorkspaceMemberRoleFetch';
 import { getPersonalDeletedPagesFetch } from '@/lib/api/getPersonalDeletedPagesFetch';
 import { softDeletePageWithDescendantsFetch } from '@/lib/api/softDeletePageWithDescendantsFetch';
-
+import { hardDeletePageFetch } from '@/lib/api/hardDeletePageFetch';
 type InviteRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
 export const addMemberMutation = () => {
@@ -226,7 +226,9 @@ export function useUpdateWorkspaceMemberRoleMutation() {
     },
     onError: (error) => {
       const errorMessage =
-        error instanceof Error ? error.message : '멤버 권한 수정에 실패했습니다.';
+        error instanceof Error
+          ? error.message
+          : '멤버 권한 수정에 실패했습니다.';
 
       toast.error(errorMessage, {
         position: 'top-center',
@@ -266,9 +268,7 @@ export function useSoftDeletePageWithDescendantsMutation() {
     },
     onError: (error) => {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : '페이지 삭제에 실패했습니다.';
+        error instanceof Error ? error.message : '페이지 삭제에 실패했습니다.';
 
       toast.error(errorMessage, {
         position: 'top-center',
@@ -277,3 +277,42 @@ export function useSoftDeletePageWithDescendantsMutation() {
   });
 }
 
+type HardDeletePageVariables = {
+  pageId: number;
+  type?: 'personal';
+};
+export function useHardDeletePageMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ pageId, type }: HardDeletePageVariables) => {
+      console.log(type, 'type in useHardDeletePageMutation');
+      return hardDeletePageFetch(pageId, type);
+    },
+
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['personalDeletedPages'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['initialPage'],
+      });
+
+      toast.success('Page permanently deleted', {
+        position: 'top-center',
+      });
+    },
+
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : '페이지 영구 삭제에 실패했습니다.';
+
+      toast.error(errorMessage, {
+        position: 'top-center',
+      });
+    },
+  });
+}

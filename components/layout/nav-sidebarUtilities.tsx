@@ -26,8 +26,8 @@ type DeletedPage = {
 
 type DeletedPageRowProps = {
   page: DeletedPage;
-  onRestorePage?: (id: string) => void;
-  onDeletePage?: (id: string) => void;
+  onRestorePage: (id: number) => void;
+  onDeletePage: (id: number, type?: 'personal') => void;
 };
 
 function DeletedPageRow({
@@ -61,7 +61,12 @@ function DeletedPageRow({
           size="sm"
           className="h-8 text-red-600 transition-colors duration-200 hover:bg-red-50 hover:text-red-700"
           aria-label={`영구 삭제: ${page.title}`}
-          onClick={() => onDeletePage?.(page.id)}
+          onClick={() =>
+            onDeletePage({
+              pageId: Number(page.id),
+              type: 'personal',
+            })
+          }
         >
           삭제
         </Button>
@@ -72,8 +77,8 @@ function DeletedPageRow({
 
 type DeletedPageListProps = {
   pages: DeletedPage[];
-  onRestorePage?: (id: string) => void;
-  onDeletePage?: (id: string) => void;
+  onRestorePage: (id: string) => void;
+  onDeletePage: (id: number, type?: 'personal') => void;
 };
 
 function DeletedPageList({
@@ -81,6 +86,7 @@ function DeletedPageList({
   onRestorePage,
   onDeletePage,
 }: DeletedPageListProps) {
+  console.log(onDeletePage, 'onDeletePage in DeletedPageList');
   if (pages.length === 0) {
     return (
       <div className="flex min-h-[180px] flex-col items-center justify-center text-center text-[#5c605a]">
@@ -140,13 +146,12 @@ type SidebarBottomUtilityProps = {
   }>;
   onOpenTrashPage?: () => void;
   onEmptyTrash?: () => void;
-  onRestorePage?: (id: string) => void;
-  onDeletePage?: (id: string) => void;
+  onRestorePage: (id: string) => void;
+  onDeletePage: (id: number, type?: 'personal') => void;
 };
 
 export function SidebarBottomUtiltiy({
   deletePage,
-  onOpenTrashPage,
   onEmptyTrash,
   onRestorePage,
   onDeletePage,
@@ -157,7 +162,7 @@ export function SidebarBottomUtiltiy({
       title: page.title ?? 'Untitled',
       icon: <FileText className="h-4 w-4" />,
     })) ?? [];
-
+  console.log(onDeletePage, 'onDeletePage in SidebarBottomUtility22');
   return (
     <div className="space-y-1 py-2 px-2">
       <Button variant="ghost" className={utilityItemClass}>
@@ -190,9 +195,6 @@ export function SidebarBottomUtiltiy({
             <DialogClose asChild>
               <Button variant="outline">취소</Button>
             </DialogClose>
-            <Button variant="destructive" onClick={onEmptyTrash}>
-              비우기
-            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
