@@ -71,7 +71,6 @@ export function AppSidebar({
     staleTime: 1000 * 30,
   });
   const { data: deletePage } = usePersonalDeletedPages();
-  console.log(deletePage, 'deleted pages in sidebar');
   const { data: ancestorPath } = useQuery({
     queryKey: [
       'ancestorPath',
@@ -115,7 +114,7 @@ export function AppSidebar({
         <NavWorkspaces workspaces={user.workspaces} userId={userId} />
         <Separator className="my-1 bg-stone-200" />
         <NavPersonalSpace pages={user.personal.rootPages} />
-        <SidebarBottomUtiltiy />
+        <SidebarBottomUtiltiy deletePage={deletePage} />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
