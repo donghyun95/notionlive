@@ -14,7 +14,6 @@ import {
   CircleQuestionMark,
   FileText,
   Inbox,
-  Plus,
   Star,
   Trash2,
 } from 'lucide-react';
@@ -24,17 +23,6 @@ type DeletedPage = {
   title: string;
   icon?: ReactNode;
 };
-
-const deletedPages: DeletedPage[] = [
-  { id: 'page-1', title: '프로젝트 회고 2026 Q1', icon: <FileText className="h-4 w-4" /> },
-  { id: 'page-2', title: '마케팅 주간 보고서', icon: <Plus className="h-4 w-4" /> },
-  {
-    id: 'page-3',
-    title:
-      '팀 온보딩 가이드 - 매우 긴 문서 제목이 들어왔을 때 말줄임이 적용되는지 확인합니다',
-    icon: <FileText className="h-4 w-4" />,
-  },
-];
 
 type DeletedPageRowProps = {
   page: DeletedPage;
@@ -144,6 +132,10 @@ export function SidebarTopUtilities() {
 }
 
 type SidebarBottomUtilityProps = {
+  deletePage?: Array<{
+    id: number | string;
+    title: string | null;
+  }>;
   onOpenTrashPage?: () => void;
   onEmptyTrash?: () => void;
   onRestorePage?: (id: string) => void;
@@ -151,11 +143,19 @@ type SidebarBottomUtilityProps = {
 };
 
 export function SidebarBottomUtiltiy({
+  deletePage,
   onOpenTrashPage,
   onEmptyTrash,
   onRestorePage,
   onDeletePage,
 }: SidebarBottomUtilityProps) {
+  const mappedDeletedPages: DeletedPage[] =
+    deletePage?.map((page) => ({
+      id: String(page.id),
+      title: page.title ?? 'Untitled',
+      icon: <FileText className="h-4 w-4" />,
+    })) ?? [];
+
   return (
     <div className="space-y-1 py-2 px-2">
       <Button variant="ghost" className={utilityItemClass}>
@@ -179,7 +179,7 @@ export function SidebarBottomUtiltiy({
           </DialogHeader>
           <div className="mt-3 max-h-[300px] space-y-2 overflow-y-auto px-4 pb-2">
             <DeletedPageList
-              pages={deletedPages}
+              pages={mappedDeletedPages}
               onRestorePage={onRestorePage}
               onDeletePage={onDeletePage}
             />
