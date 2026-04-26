@@ -251,6 +251,7 @@ data-[active=true]:bg-[#e0e4dc]
 }
 
 export function NavWorkspaces({ workspaces, userId }: NavWorkspacesProps) {
+  const [isWorkspacesOpen, setIsWorkspacesOpen] = useState(true);
   const queryClient = useQueryClient();
   const WorkspaceAddMutation = useMutation({
     mutationFn: createWorkSpaceFetch,
@@ -274,7 +275,11 @@ export function NavWorkspaces({ workspaces, userId }: NavWorkspacesProps) {
   // });
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <Collapsible defaultOpen className="group/workspace w-full">
+      <Collapsible
+        className="group/workspace w-full"
+        open={isWorkspacesOpen}
+        onOpenChange={setIsWorkspacesOpen}
+      >
         <div className="grid w-full grid-cols-[1fr_32px] items-center">
           <CollapsibleTrigger asChild>
             <button

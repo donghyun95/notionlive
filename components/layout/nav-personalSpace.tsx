@@ -223,6 +223,7 @@ type NavPersonalSpaceProps = {
 
 export function NavPersonalSpace({ pages }: NavPersonalSpaceProps) {
   const { data: session, status } = useSession();
+  const [isPersonalSpaceOpen, setIsPersonalSpaceOpen] = useState(true);
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -282,7 +283,11 @@ export function NavPersonalSpace({ pages }: NavPersonalSpaceProps) {
   };
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <Collapsible defaultOpen className="w-full group/collapsible">
+      <Collapsible
+        className="w-full group/collapsible"
+        open={isPersonalSpaceOpen}
+        onOpenChange={setIsPersonalSpaceOpen}
+      >
         <div className="group/row grid w-full grid-cols-[1fr_32px] items-center">
           <CollapsibleTrigger asChild>
             <button
