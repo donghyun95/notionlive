@@ -42,6 +42,7 @@ type Page = {
   href?: string;
   hasChildren?: boolean;
   icon: string;
+  isDummy?: boolean;
 };
 type WorkspaceData = {
   workspaces: any[];
@@ -64,7 +65,6 @@ const INDENT_SIZE = 12;
 const TOGGLE_WIDTH = 20;
 
 function PageTreeNode({ page, depth }: PageTreeNodeProps) {
-  //이미 페이지는 page데이터로 렌더 완료 , 자신의 자식페이지들을 렌더링하기위해 자신의 id를 넘기고 자식들 데이터를 배열로가져와서뿌려줌
   const pageNodeID = useSelectedData((state) => state.pageNodeID);
   const isCursorOn = useSelectedData((state) => state.isCursorOn);
   const isOpen = useSelectedData((state) => state.openMap[page.id] ?? false);
@@ -97,6 +97,7 @@ function PageTreeNode({ page, depth }: PageTreeNodeProps) {
         parentId,
         createdAt: date,
         updatedAt: date,
+        isDummy: true,
       };
 
       queryClient.setQueryData(queryKey, (old: any) => {
@@ -140,11 +141,11 @@ function PageTreeNode({ page, depth }: PageTreeNodeProps) {
     <SidebarMenuItem className="w-full list-none">
       <Collapsible
         className="w-full"
-        onOpenChange={handleOpenChange}
+        onOpenChange={page.isDummy ? undefined : handleOpenChange}
         open={isOpen}
       >
         <div
-          onClick={handleClickCursorOnOff}
+          onClick={page.isDummy ? undefined : handleClickCursorOnOff}
           data-active={isActive}
           className={`group/row grid w-full grid-cols-[1fr_32px] rounded-md items-center hover:bg-[#e7e9e2] ${
             isActive ? 'bg-[#e0e4dc]' : ''
@@ -173,10 +174,17 @@ function PageTreeNode({ page, depth }: PageTreeNodeProps) {
 
             <div className="min-w-0 h-8 flex-1 pr-2 hover:bg-transparent">
               <Link
-                href={`/dashboard/${session?.user.id}?PageId=${page.id}`}
+                href={
+                  page.isDummy
+                    ? '#'
+                    : `/dashboard/${session?.user.id}?PageId=${page.id}`
+                }
+                onClick={(e) => {
+                  if (page.isDummy) e.preventDefault();
+                }}
                 className={`pl-2 flex h-full min-w-0 flex-1 items-center truncate ${
                   isActive ? 'text-[#4F46E5] font-medium' : 'text-[#30332e]'
-                }`}
+                } ${page.isDummy ? 'pointer-events-none text-[#8a8f86]' : ''}`}
                 title={page.title}
               >
                 {selfAndChildren?.self?.title || 'Untitled'}

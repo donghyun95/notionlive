@@ -42,6 +42,7 @@ type Page = {
   order?: number;
   createdAt?: string;
   updatedAt?: string;
+  isDummy?: boolean;
 };
 
 type Workspace = {
@@ -109,6 +110,7 @@ export function PageTreeNode({ page, depth }: PageTreeNodeProps) {
         parentId: variables.parentId,
         createdAt: date,
         updatedAt: date,
+        isDummy: true,
       };
 
       queryClient.setQueryData(queryKey, (old: any) => {
@@ -165,11 +167,11 @@ export function PageTreeNode({ page, depth }: PageTreeNodeProps) {
     <SidebarMenuItem className="w-full list-none">
       <Collapsible
         className="w-full"
-        onOpenChange={handleOpenChange}
+        onOpenChange={page.isDummy ? undefined : handleOpenChange}
         open={isOpen}
       >
         <div
-          onClick={handleClickCursorOnOff}
+          onClick={page.isDummy ? undefined : handleClickCursorOnOff}
           data-active={isActive}
           className={`
 group/row grid w-full grid-cols-[1fr_32px] rounded-md items-center
@@ -198,7 +200,11 @@ data-[active=true]:bg-[#e0e4dc]
 
             <div className="min-w-0 h-8 flex-1 pr-2 hover:bg-transparent">
               <Link
-                href={`/dashboard/${session?.user.id}?PageId=${page.id}`}
+                href={
+                  page.isDummy
+                    ? '#'
+                    : `/dashboard/${session?.user.id}?PageId=${page.id}`
+                }
                 className={`pl-2 flex h-full min-w-0 flex-1 items-center truncate ${
                   isActive ? 'text-[#4F46E5] font-medium' : 'text-[#30332e]'
                 }`}
@@ -212,7 +218,7 @@ data-[active=true]:bg-[#e0e4dc]
           <div className="flex h-8 w-8 items-center justify-center">
             <button
               type="button"
-              onClick={handleCreateChild}
+              onClick={page.isDummy ? undefined : handleCreateChild}
               className="flex h-8 w-8 items-center justify-center rounded-md opacity-0 transition-opacity group-hover/row:opacity-100 cursor-pointer"
             >
               <Plus className="h-4 w-4" />
