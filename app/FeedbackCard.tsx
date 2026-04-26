@@ -1,6 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+
+import { createFeedbackFetch } from '@/lib/api/createFeedbackFetch';
 import { AnimatePresence, motion } from 'motion/react';
 import type { Transition } from 'motion/react';
 import {
@@ -76,29 +78,15 @@ export default function FeedbackCard() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          category,
-          title,
-          message,
-          email,
-          mood,
-          pageUrl: window.location.href,
-          userAgent: navigator.userAgent,
-        }),
+      await createFeedbackFetch({
+        category,
+        title,
+        message,
+        email,
+        mood,
+        pageUrl: window.location.href,
+        userAgent: navigator.userAgent,
       });
-
-      const data = await response.json();
-      const apiErrorMessage =
-        data?.error ?? data?.message ?? '제보 전송에 실패했습니다.';
-
-      if (!response.ok) {
-        throw new Error(apiErrorMessage);
-      }
 
       setStatus('success');
       setTitle('');

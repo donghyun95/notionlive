@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { FeedbackCategory } from '@prisma/client';
 
 import { auth } from '@/lib/auth';
+import { createFeedback } from '@/server/feedback/mutations';
 import { getFeedbackList } from '@/server/feedback/queries';
+import { feedbackSchema } from '@/server/feedback/schema';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 20;
@@ -33,6 +35,47 @@ function parseCategory(rawValue: string | null): FeedbackCategory | undefined {
   }
 
   return normalized as FeedbackCategory;
+}
+
+
+export async function POST(request: NextRequest) {
+  try {
+    const payload = await request.json();
+    const parsed = feedbackSchema.safeParse(payload);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: 'VALIDATION_ERROR',
+          details: parsed.error.flatten(),
+        },
+        { status: 400 },
+      );
+    }
+
+    const session = await auth();
+
+    const created = await createFeedback({
+      ...parsed.data,
+      userEmail: session?.user?.email ?? null,
+    });
+
+    return NextResponse.json(
+      {
+        ok: true,
+        id: created.id,
+        createdAt: created.createdAt,
+      },
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      { error: 'INTERNAL_SERVER_ERROR' },
+      { status: 500 },
+    );
+  }
 }
 
 export async function GET(request: NextRequest) {
