@@ -73,6 +73,7 @@ export function AppSidebar({
   const userId = session?.user.id;
   const userImage = session?.user.image;
   const userName = session?.user.name;
+  const userEmail = session?.user.email;
   const { data: user } = useQuery({
     queryKey: ['initialPage', userId],
     queryFn: getSidebarData,
@@ -127,7 +128,7 @@ export function AppSidebar({
         <SidebarUserInfo name={userName} image={userImage} />
       </SidebarHeader>
       <SidebarContent className="bg-[#fafaf5] overflow-y-auto no-scrollbar">
-        <SidebarTopUtilities />
+        <SidebarTopUtilities userEmail={userEmail} />
         <Separator className="my-0 bg-stone-200" />
         <NavWorkspaces workspaces={user.workspaces} userId={userId} />
         <Separator className="my-1 bg-stone-200" />

@@ -14,9 +14,14 @@ import {
   CircleQuestionMark,
   FileText,
   Inbox,
+  MessageCircleQuestion,
   Star,
   Trash2,
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+import { isAdminEmail } from '@/lib/auth/isAdminEmail';
 
 type DeletedPage = {
   id: string;
@@ -132,7 +137,15 @@ const utilityItemClass = `
   active:scale-[0.98]
   transition-colors duration-200
 `;
-export function SidebarTopUtilities() {
+type SidebarTopUtilitiesProps = {
+  userEmail?: string | null;
+};
+
+export function SidebarTopUtilities({ userEmail }: SidebarTopUtilitiesProps) {
+  const pathname = usePathname();
+  const isFeedbackPage = pathname?.startsWith('/feedback');
+  const isAdmin = isAdminEmail(userEmail);
+
   return (
     <div className="space-y-1 py-2 px-2">
       <Button variant="ghost" className={utilityItemClass}>
@@ -144,6 +157,25 @@ export function SidebarTopUtilities() {
         <Inbox className="w-5 h-5" />
         <span className="text-sm">Inbox</span>
       </Button>
+
+      {isAdmin ? (
+        <Button
+          asChild
+          variant="ghost"
+          className={`${utilityItemClass} ${
+            isFeedbackPage ? 'bg-[#e7e9e2] text-[#37352f]' : ''
+          }`}
+        >
+          <Link
+            href="/feedback"
+            aria-label="Feedback 페이지로 이동"
+            aria-current={isFeedbackPage ? 'page' : undefined}
+          >
+            <MessageCircleQuestion className="w-5 h-5" />
+            <span className="text-sm">Feedback</span>
+          </Link>
+        </Button>
+      ) : null}
     </div>
   );
 }
