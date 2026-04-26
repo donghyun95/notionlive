@@ -49,6 +49,10 @@ import {
   usePersonalDeletedPages,
   useRestorePageMutation,
 } from './tanstack-query-collection';
+type DeletePageParams = {
+  pageId: number;
+  type?: 'personal';
+};
 
 const isPositiveInt = (n) => Number.isInteger(n) && n > 0;
 
@@ -78,14 +82,12 @@ export function AppSidebar({
   const { data: deletePage } = usePersonalDeletedPages();
   const hardDeletePageMutation = useHardDeletePageMutation();
   const restorePageMutation = useRestorePageMutation();
-  const handleDeletePage = (variable: any) => {
+  const handleDeletePage = (variable: DeletePageParams) => {
     hardDeletePageMutation.mutate(variable);
   };
   const handleRestorePage = (pageId: string) => {
     restorePageMutation.mutate({ pageId: Number(pageId) });
   };
-  console.log(handleDeletePage, 'handleDeletePage in app sidebar');
-  console.log(deletePage, 'deleted pages in sidebar');
   const { data: ancestorPath } = useQuery({
     queryKey: [
       'ancestorPath',

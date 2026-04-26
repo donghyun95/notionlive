@@ -24,10 +24,15 @@ type DeletedPage = {
   icon?: ReactNode;
 };
 
+type DeletePageParams = {
+  pageId: number;
+  type?: 'personal';
+};
+
 type DeletedPageRowProps = {
   page: DeletedPage;
-  onRestorePage: (id: number) => void;
-  onDeletePage: (id: number, type?: 'personal') => void;
+  onRestorePage: (id: string) => void;
+  onDeletePage: (params: DeletePageParams) => void;
 };
 
 function DeletedPageRow({
@@ -52,7 +57,7 @@ function DeletedPageRow({
           size="sm"
           className="h-8 text-[#5c605a] transition-colors duration-200 hover:bg-[#e7e9e2]"
           aria-label={`복원: ${page.title}`}
-          onClick={() => onRestorePage?.(page.id)}
+          onClick={() => onRestorePage(page.id)}
         >
           복원
         </Button>
@@ -78,7 +83,7 @@ function DeletedPageRow({
 type DeletedPageListProps = {
   pages: DeletedPage[];
   onRestorePage: (id: string) => void;
-  onDeletePage: (id: number, type?: 'personal') => void;
+  onDeletePage: (variable: DeletePageParams) => void;
 };
 
 function DeletedPageList({
@@ -147,7 +152,7 @@ type SidebarBottomUtilityProps = {
   onOpenTrashPage?: () => void;
   onEmptyTrash?: () => void;
   onRestorePage: (id: string) => void;
-  onDeletePage: (id: number, type?: 'personal') => void;
+  onDeletePage: (variable: DeletePageParams) => void;
 };
 
 export function SidebarBottomUtiltiy({
