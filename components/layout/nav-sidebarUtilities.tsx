@@ -41,30 +41,35 @@ function DeletedPageRow({
   onDeletePage,
 }: DeletedPageRowProps) {
   return (
-    <div className="flex h-12 w-full items-center justify-between rounded-lg border border-[#d9ddd3] px-3 transition-colors duration-200 hover:bg-[#f4f5f1]">
-      <div className="mr-3 flex min-w-0 items-center gap-2 text-[#5c605a]">
-        <span className="shrink-0">
+    <div className="group flex h-11 w-full items-center justify-between rounded-md px-2 transition-colors duration-150 hover:bg-[#f7f7f5]">
+      <div className="mr-3 flex min-w-0 items-center gap-2 text-[#37352f]">
+        <span className="flex h-5 w-5 shrink-0 items-center justify-center text-[#787774]">
           {page.icon ?? <FileText className="h-4 w-4" />}
         </span>
-        <span className="truncate text-sm font-medium" title={page.title}>
+
+        <span
+          className="truncate text-sm font-normal leading-5"
+          title={page.title}
+        >
           {page.title}
         </span>
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 transition-opacity duration-150">
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="h-8 text-[#5c605a] transition-colors duration-200 hover:bg-[#e7e9e2]"
+          className="h-7 rounded px-2 text-xs font-medium text-[#787774] transition-colors duration-150 hover:bg-[#efefed] hover:text-[#37352f]"
           aria-label={`복원: ${page.title}`}
           onClick={() => onRestorePage(page.id)}
         >
           복원
         </Button>
+
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 text-red-600 transition-colors duration-200 hover:bg-red-50 hover:text-red-700"
+          className="h-7 rounded px-2 text-xs font-medium text-[#a33a3a] transition-colors duration-150 hover:bg-[#f4eeee] hover:text-[#8f2f2f]"
           aria-label={`영구 삭제: ${page.title}`}
           onClick={() =>
             onDeletePage({
@@ -79,7 +84,6 @@ function DeletedPageRow({
     </div>
   );
 }
-
 type DeletedPageListProps = {
   pages: DeletedPage[];
   onRestorePage: (id: string) => void;
