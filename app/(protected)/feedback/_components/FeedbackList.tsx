@@ -1,7 +1,7 @@
 'use client';
 
 import { FeedbackCategory } from '@prisma/client';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
   getFeedbackListFetch,
@@ -18,7 +18,20 @@ const categoryOptions: { label: string; value: 'ALL' | FeedbackCategory }[] = [
 const pageSizeOptions = [20, 50, 100] as const;
 
 function formatCreatedAt(value: string) {
-  return new Date(value).toLocaleString();
+  const parts = new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Seoul',
+  }).formatToParts(new Date(value));
+
+  const getPart = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value ?? '';
+
+  return `${getPart('year')}.${getPart('month')}.${getPart('day')} ${getPart('hour')}:${getPart('minute')}`;
 }
 
 export default function FeedbackList() {
@@ -31,44 +44,49 @@ export default function FeedbackList() {
   const [expandedMessageIds, setExpandedMessageIds] = useState<Set<number>>(
     new Set(),
   );
-
-  const loadFeedbackList = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await getFeedbackListFetch({
-        page,
-        pageSize,
-        category: category === 'ALL' ? undefined : category,
-      });
-
-      setResult(response);
-    } catch (fetchError) {
-      setError(
-        fetchError instanceof Error
-          ? fetchError.message
-          : '알 수 없는 오류가 발생했습니다.',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [category, page, pageSize]);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    let mounted = true;
+    const controller = new AbortController();
 
-    async function run() {
-      if (!mounted) return;
-      await loadFeedbackList();
-    }
+    const loadFeedbackList = async () => {
+      setLoading(true);
+      setError(null);
 
-    run();
+      try {
+        const response = await getFeedbackListFetch(
+          {
+            page,
+            pageSize,
+            category: category === 'ALL' ? undefined : category,
+          },
+          { signal: controller.signal },
+        );
+
+        setResult(response);
+      } catch (fetchError) {
+        if (fetchError instanceof DOMException && fetchError.name === 'AbortError') {
+          return;
+        }
+
+        setError(
+          fetchError instanceof Error
+            ? fetchError.message
+            : '알 수 없는 오류가 발생했습니다.',
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadFeedbackList();
 
     return () => {
-      mounted = false;
+      controller.abort();
     };
-  }, [loadFeedbackList]);
+  }, [category, page, pageSize, reloadKey]);
 
   const totalPages = result?.totalPages ?? 1;
   const hasPrev = page > 1;
@@ -86,6 +104,10 @@ export default function FeedbackList() {
       }
       return next;
     });
+  };
+
+  const retryLoad = () => {
+    setReloadKey((prev) => prev + 1);
   };
 
   return (
@@ -135,7 +157,7 @@ export default function FeedbackList() {
           <div className="space-y-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             <p>{error}</p>
             <button
-              onClick={loadFeedbackList}
+              onClick={retryLoad}
               className="rounded-md border border-red-300 bg-white px-3 py-1.5 text-sm"
             >
               재시도
