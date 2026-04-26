@@ -5,21 +5,11 @@ import { auth } from '@/lib/auth';
 import { createFeedback } from '@/server/feedback/mutations';
 import { getFeedbackList } from '@/server/feedback/queries';
 import { feedbackSchema } from '@/server/feedback/schema';
+import { isAdminEmail } from '@/lib/auth/isAdminEmail';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 100;
-
-function isAdminEmail(email?: string | null) {
-  if (!email) return false;
-
-  const adminEmailList = (process.env.ADMIN_EMAILS ?? '')
-    .split(',')
-    .map((value) => value.trim().toLowerCase())
-    .filter(Boolean);
-
-  return adminEmailList.includes(email.toLowerCase());
-}
 
 function parseCategory(rawValue: string | null): FeedbackCategory | undefined {
   if (!rawValue) return undefined;
