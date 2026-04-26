@@ -93,9 +93,11 @@ export default function FeedbackCard() {
       });
 
       const data = await response.json();
+      const apiErrorMessage =
+        data?.error ?? data?.message ?? '제보 전송에 실패했습니다.';
 
       if (!response.ok) {
-        throw new Error(data?.message || '제보 전송에 실패했습니다.');
+        throw new Error(apiErrorMessage);
       }
 
       setStatus('success');
