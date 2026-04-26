@@ -13,6 +13,7 @@ import { updateWorkspaceMemberRoleFetch } from '@/lib/api/updateWorkspaceMemberR
 import { getPersonalDeletedPagesFetch } from '@/lib/api/getPersonalDeletedPagesFetch';
 import { softDeletePageWithDescendantsFetch } from '@/lib/api/softDeletePageWithDescendantsFetch';
 import { hardDeletePageFetch } from '@/lib/api/hardDeletePageFetch';
+import { restorePageFetch } from '@/lib/api/restorePageFetch';
 type InviteRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
 export const addMemberMutation = () => {
@@ -309,6 +310,38 @@ export function useHardDeletePageMutation() {
         error instanceof Error
           ? error.message
           : '페이지 영구 삭제에 실패했습니다.';
+
+      toast.error(errorMessage, {
+        position: 'top-center',
+      });
+    },
+  });
+}
+
+type RestorePageVariables = {
+  pageId: number;
+};
+
+export function useRestorePageMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ pageId }: RestorePageVariables) => restorePageFetch(pageId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['personalDeletedPages'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['initialPage'],
+      });
+
+      toast.success('Page restored', {
+        position: 'top-center',
+      });
+    },
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error ? error.message : '페이지 복원에 실패했습니다.';
 
       toast.error(errorMessage, {
         position: 'top-center',

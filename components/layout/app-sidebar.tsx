@@ -47,6 +47,7 @@ import TeamSpace from './TeamSpace/TeamSpace';
 import {
   useHardDeletePageMutation,
   usePersonalDeletedPages,
+  useRestorePageMutation,
 } from './tanstack-query-collection';
 
 const isPositiveInt = (n) => Number.isInteger(n) && n > 0;
@@ -76,8 +77,12 @@ export function AppSidebar({
   });
   const { data: deletePage } = usePersonalDeletedPages();
   const hardDeletePageMutation = useHardDeletePageMutation();
+  const restorePageMutation = useRestorePageMutation();
   const handleDeletePage = (variable: any) => {
     hardDeletePageMutation.mutate(variable);
+  };
+  const handleRestorePage = (pageId: string) => {
+    restorePageMutation.mutate({ pageId: Number(pageId) });
   };
   console.log(handleDeletePage, 'handleDeletePage in app sidebar');
   console.log(deletePage, 'deleted pages in sidebar');
@@ -126,6 +131,7 @@ export function AppSidebar({
         <NavPersonalSpace pages={user.personal.rootPages} />
         <SidebarBottomUtiltiy
           deletePage={deletePage}
+          onRestorePage={handleRestorePage}
           onDeletePage={handleDeletePage}
         />
       </SidebarContent>
