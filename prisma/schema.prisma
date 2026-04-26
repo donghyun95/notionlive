@@ -30,6 +30,12 @@ enum WorkspaceInviteStatus {
   DECLINED
 }
 
+enum FeedbackCategory {
+  BUG
+  IDEA
+  UX
+}
+
 model WorkspaceInvite {
   id            String                 @id @default(cuid())
 
@@ -69,9 +75,29 @@ model User {
   memberships WorkspaceMember[]
   pages       Page[]            @relation("PageAuthor")
   deletedPages Page[]           @relation("PageDeleter")
+  feedbacks   Feedback[]
 
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
+}
+
+model Feedback {
+  id        String           @id @default(cuid())
+  category  FeedbackCategory
+  title     String
+  message   String           @db.Text
+  email     String?
+  mood      Int
+  pageUrl   String?
+  userAgent String?          @db.Text
+  userId    String?
+  user      User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([createdAt])
+  @@index([category, createdAt])
+  @@index([userId])
 }
 
 model Workspace {
