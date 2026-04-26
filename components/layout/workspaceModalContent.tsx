@@ -44,7 +44,7 @@ type Member = {
   role: MemberRole;
   user: {
     id: string;
-    name: string | null;
+    name: string;
     email: string;
   };
 };
@@ -94,7 +94,7 @@ export function WorkspaceSettings({
     });
     console.log('save workspace name:', workspaceName);
   };
-  const handleSearchInput = (value) => {
+  const handleSearchInput = (value: any) => {
     setInviteKeyword(value);
   };
 
@@ -331,7 +331,9 @@ function WorkspaceMemberItem({
       <div className="flex items-center gap-1">
         <Select
           value={role}
-          onValueChange={(value: MemberRole) => onUpdateRole(member.id, value)}
+          onValueChange={(value: MemberRole) =>
+            onUpdateRole(String(member.id), value)
+          }
         >
           <SelectTrigger className="h-9 w-[110px] rounded-full border-none bg-transparent font-medium text-slate-600 transition-colors hover:bg-slate-200/50 focus:ring-0 focus:ring-offset-0">
             <SelectValue />
@@ -349,7 +351,7 @@ function WorkspaceMemberItem({
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => onRemoveMember(member.id)}
+          onClick={() => onRemoveMember(String(member.id))}
           className="text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
         >
           <Trash2 className="h-4 w-4" />

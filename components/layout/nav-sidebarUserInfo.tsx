@@ -12,7 +12,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { signOut } from 'next-auth/react';
 import { ChevronsUpDown } from 'lucide-react';
 
-export function SidebarUserInfo({ name, image }) {
+export function SidebarUserInfo({
+  name,
+  image,
+}: {
+  name: string;
+  image?: string;
+}) {
   function logout() {
     signOut({ callbackUrl: '/login' });
   }

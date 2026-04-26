@@ -19,7 +19,6 @@ import { NavPersonalSpace } from './nav-personalSpace';
 import { NavMain } from './nav-main';
 import { NavSecondary } from './nav-secondary';
 import { NavWorkspaces } from './nav-workspaces';
-import { TeamSwitcher } from './team-switcher';
 import {
   Sidebar,
   SidebarContent,
@@ -125,7 +124,7 @@ export function AppSidebar({
   return (
     <Sidebar className="border-r-0" {...props}>
       <SidebarHeader className="w-full px-2 py-2 bg-[#fafaf5]">
-        <SidebarUserInfo name={userName} image={userImage} />
+        <SidebarUserInfo name={userName || ''} image={userImage || ''} />
       </SidebarHeader>
       <SidebarContent className="bg-[#fafaf5] overflow-y-auto no-scrollbar">
         <SidebarTopUtilities userEmail={userEmail} />

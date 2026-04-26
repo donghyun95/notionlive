@@ -13,7 +13,9 @@ export async function GET(request: Request) {
     if (!session) {
       return NextResponse.json({ error: 'LOGIN_REQUIRED' }, { status: 400 });
     }
-
+    if (!session.user?.id) {
+      return NextResponse.json({ error: 'INVALID_SESSION' }, { status: 401 });
+    }
     const result = await getSidebarData(session.user?.id);
 
     return NextResponse.json(result);

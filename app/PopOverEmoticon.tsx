@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/popover';
 import { getSelfandChildrenFetch } from '@/lib/api/getSelfandChildrenFetch';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import { useState, useEffect } from 'react';
 import { useSelectedData } from './Providers/ClientDataProvider';
 import { updateTitleANDIcon } from '@/lib/api/updateTitleANDIcon';
@@ -61,7 +61,7 @@ export function PopOverEmoticon() {
     enabled: true,
     refetchInterval: 3000,
   });
-  const [Emoticon, setEmoticon] = useState(undefined);
+  const [Emoticon, setEmoticon] = useState<string | undefined>(undefined);
   const updateIconMutation = useMutation<
     unknown,
     Error,
@@ -78,7 +78,7 @@ export function PopOverEmoticon() {
       console.error('아이콘 업데이트 에러:', error);
     },
   });
-  const onEmojiClick = (emojiData, event) => {
+  const onEmojiClick = (emojiData: EmojiClickData) => {
     //mutation으로 데이터수정날리기
     updateIconMutation.mutate({
       pageID: Number(pageNodeID),
@@ -109,7 +109,7 @@ function EmojiPopover({
   onEmojiClick,
 }: {
   icon: string | undefined;
-  onEmojiClick: (emojiData, event) => void;
+  onEmojiClick: (emojiData: EmojiClickData) => void;
 }) {
   return (
     <Popover>

@@ -30,10 +30,10 @@ type WorkspaceInviteMembersSectionProps = {
   inviteKeyword: string;
   onChangeInviteKeyword: (value: string) => void;
   onInvite: () => void;
-  onSearch: (value) => void;
+  onSearch: (value: String) => void;
   userlist: [];
   selectedUser: User | null;
-  setSelectedUser: (value) => void;
+  setSelectedUser: (value: User | null) => void;
 };
 
 export function WorkspaceInviteMembersSection({
@@ -106,11 +106,11 @@ export function UserCommandItem({
 
 type InviteMemberProps = {
   userlist: User[];
-  onInvite: (ev) => void;
+  onInvite: (ev: any) => void;
   onChangeInviteKeyword: any;
   inviteKeyword: any;
   selectedUser: User | null;
-  setSelectedUser: (value) => void;
+  setSelectedUser: (value: User | null) => void;
 };
 
 export default function InviteMember({

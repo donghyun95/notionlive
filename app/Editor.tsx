@@ -32,7 +32,7 @@ const schema = BlockNoteSchema.create({
   },
 });
 
-export function Editor({ role }) {
+export function Editor({ role }: { role: string }) {
   const editor = useCreateBlockNoteWithLiveblocks(
     { schema, uploadFile },
     { mentions: false },

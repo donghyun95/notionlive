@@ -2,6 +2,7 @@
 import { getSelfandChildrenFetch } from '@/lib/api/getSelfandChildrenFetch';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState, useRef } from 'react';
+import { BlockNoteEditor } from '@blocknote/core'; // 1. BlockNote 타입 임포트
 import { useSelectedData } from './Providers/ClientDataProvider';
 import { updateTitleANDIcon } from '@/lib/api/updateTitleANDIcon';
 type UpdateTitlePayload = {
@@ -10,7 +11,10 @@ type UpdateTitlePayload = {
   icon: string | undefined;
 };
 
-export function TitleInput({ editor }) {
+interface TitleInputProps {
+  editor: BlockNoteEditor;
+}
+export function TitleInput({ editor }: TitleInputProps) {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
   const pageNodeID = useSelectedData((state) => state.pageNodeID);
@@ -32,10 +36,10 @@ export function TitleInput({ editor }) {
     },
   });
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      e.target.blur();
+      e.currentTarget.blur();
       const newBlocks = editor.insertBlocks(
         [
           {

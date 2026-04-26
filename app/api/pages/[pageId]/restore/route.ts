@@ -3,9 +3,9 @@ import { auth } from '@/lib/auth';
 import { restorePageToRoot } from '@/server/page/queries';
 
 type RouteContext = {
-  params: {
+  params: Promise<{
     pageId: string;
-  };
+  }>;
 };
 
 export async function PATCH(_: Request, { params }: RouteContext) {
