@@ -69,9 +69,7 @@ export default function FeedbackCard() {
 
   const canSubmit = title.trim().length > 1 && message.trim().length > 9;
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  async function submitFeedback() {
     if (!canSubmit || status === 'loading') return;
 
     setStatus('loading');
@@ -101,6 +99,11 @@ export default function FeedbackCard() {
           : '알 수 없는 오류가 발생했습니다.',
       );
     }
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await submitFeedback();
   }
 
   const SelectedIcon = selectedCategory?.icon ?? MessageSquareWarning;
@@ -328,6 +331,10 @@ export default function FeedbackCard() {
 
             <motion.button
               type="submit"
+              onClick={(event) => {
+                event.preventDefault();
+                void submitFeedback();
+              }}
               disabled={!canSubmit || status === 'loading'}
               whileHover={canSubmit ? { y: -2, scale: 1.02 } : undefined}
               whileTap={canSubmit ? { scale: 0.97 } : undefined}
