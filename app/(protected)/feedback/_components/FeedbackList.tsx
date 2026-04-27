@@ -35,7 +35,7 @@ function formatCreatedAt(value: string) {
 }
 
 export default function FeedbackList() {
-  const [category, setCategory] = useState<'ALL' | FeedbackCategory>('ALL');
+  const [category, setCategory] = useState<CategoryFilter>('ALL');
   const [pageSize, setPageSize] =
     useState<(typeof pageSizeOptions)[number]>(20);
   const [page, setPage] = useState(1);
@@ -124,7 +124,7 @@ export default function FeedbackList() {
             <select
               value={category}
               onChange={(event) => {
-                setCategory(event.target.value as 'ALL' | FeedbackCategory);
+                setCategory(event.target.value as CategoryFilter);
                 setPage(1);
               }}
               className="h-10 rounded-md border border-black/20 px-3 text-sm"
