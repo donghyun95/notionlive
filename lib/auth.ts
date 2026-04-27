@@ -44,19 +44,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     jwt({ token, user }) {
-      if (user) {
+      if (user && user.id) {
         token.id = user.id;
+      }
+
+      if (user) {
         token.image = user.image;
         token.color = user.color;
       }
+
       return token;
     },
     session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.image = token.image as string;
-        session.user.color = token.color as string;
+      if (!session.user) {
+        return session;
       }
+
+      if (typeof token.id === 'string') {
+        session.user.id = token.id;
+      }
+
+      if (typeof token.image === 'string' || token.image === null) {
+        session.user.image = token.image;
+      }
+
+      if (typeof token.color === 'string' || token.color === null) {
+        session.user.color = token.color;
+      }
+
       return session;
     },
   },
