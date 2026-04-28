@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Script from 'next/script';
 
 declare global {
@@ -30,12 +30,33 @@ export default function TurnstileWidget({
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const rendered = useRef(false);
-
+  const [siteKey, setSiteKey] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    async function loadConfig() {
+      try {
+        const res = await fetch('/api/public-config');
+        if (!res.ok) {
+          throw new Error('Failed to load config');
+        }
+        const data = await res.json();
+        if (!data.turnstileSiteKey) {
+          throw new Error('Missing Turnstile site key');
+        }
+        setSiteKey(data.turnstileSiteKey);
+      } catch {
+        handleSubmitError('Security verification is not configured.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadConfig();
+  }, [handleSubmitError]);
   const renderTurnstile = () => {
-    if (!window.turnstile || !ref.current || rendered.current) return;
-
+    if (!window.turnstile || !ref.current || rendered.current || !siteKey)
+      return;
     window.turnstile.render(ref.current, {
-      sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!,
+      sitekey: siteKey,
       callback: (token: string) => {
         onVerify(token);
         console.log('Turnstile token:', token);
@@ -54,7 +75,17 @@ export default function TurnstileWidget({
 
     rendered.current = true;
   };
+  useEffect(() => {
+    renderTurnstile();
+  }, [siteKey]);
 
+  if (isLoading) {
+    return <div>Loading security verification...</div>;
+  }
+
+  if (!siteKey) {
+    return <div>Security verification is not available.</div>;
+  }
   return (
     <>
       <Script

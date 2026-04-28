@@ -1,8 +1,6 @@
-import { FeedbackCategory } from '@prisma/client';
-
 export type FeedbackListItem = {
   id: number;
-  category: FeedbackCategory;
+  category: any;
   title: string;
   message: string;
   email: string | null;
