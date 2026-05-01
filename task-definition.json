@@ -1,0 +1,64 @@
+{
+  "family": "example1",
+  "containerDefinitions": [
+    {
+      "name": "example",
+      "image": "990678687582.dkr.ecr.ap-northeast-2.amazonaws.com/teamspace",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80,
+          "protocol": "tcp",
+          "name": "example-80-tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        { "name": "AUTH_URL", "value": "http://localhost:3000" },
+        { "name": "TURNSTILE_SITE_KEY", "value": "0x4AAAAAADEgmUAS8AXLW7zf" },
+        { "name": "NEXT_PUBLIC_SITE_URL", "value": "http://localhost:3000" },
+        { "name": "AUTH_TRUST_HOST", "value": "true" },
+        {
+          "name": "TURNSTILE_SECRET_KEY",
+          "value": "0x4AAAAAADEgmU2pxvWLhkbYkFxdJwUH9Po"
+        },
+        {
+          "name": "AUTH_SECRET",
+          "value": "2d65a9a383dca1e9873114e3291cb8ffdaae1139ac8d23dfc826b514c453b557"
+        },
+        { "name": "ADMIN_EMAILS", "value": "tjehdtns03@gmail.com" },
+        { "name": "http://localhost:3000", "value": "http://localhost:3000" }
+      ],
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:DATABASE_URL::"
+        },
+        {
+          "name": "LIVEBLOCKS_SECRET_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:LIVEBLOCKS_SECRET_KEY::"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/",
+          "awslogs-create-group": "true",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ],
+  "executionRoleArn": "arn:aws:iam::990678687582:role/service-role/ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "3072",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  }
+}

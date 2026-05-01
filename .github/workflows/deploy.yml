@@ -32,12 +32,25 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: teamspace
-          IMAGE_TAG: latest
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # 5. ECS 서비스가 새로운 이미지를 사용하도록 갱신합니다.
-      - name: Update Amazon ECS task definition and service
-        run: |
-          aws ecs update-service --cluster favorable-hippopotamus-akjx0r22 --service example1-service-x4nnv4qa --force-new-deployment
+      # 5. 새로운 이미지 태그를 반영하여 ECS 작업 정의(Task Definition) 파일을 수정합니다.
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: example
+          image: ${{ steps.login-ecr.outputs.registry }}/teamspace:${{ github.sha }}
+
+      # 6. 수정된 작업 정의를 ECS에 배포하고 서비스가 안정화될 때까지 대기합니다.
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: example1-service-x4nnv4qa
+          cluster: favorable-hippopotamus-akjx0r22
+          wait-for-service-stability: true
