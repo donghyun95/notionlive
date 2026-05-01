@@ -7,18 +7,19 @@
       "cpu": 0,
       "portMappings": [
         {
-          "containerPort": 80,
-          "hostPort": 80,
+          "containerPort": 3000,
+          "hostPort": 3000,
           "protocol": "tcp",
-          "name": "example-80-tcp",
+          "name": "example-3000-tcp",
           "appProtocol": "http"
         }
       ],
       "essential": true,
       "environment": [
-        { "name": "AUTH_URL", "value": "http://localhost:3000" },
+        { "name": "HOSTNAME", "value": "0.0.0.0" },
+        { "name": "AUTH_URL", "value": "https://teamspace.dev" },
         { "name": "TURNSTILE_SITE_KEY", "value": "0x4AAAAAADEgmUAS8AXLW7zf" },
-        { "name": "NEXT_PUBLIC_SITE_URL", "value": "http://localhost:3000" },
+        { "name": "NEXT_PUBLIC_SITE_URL", "value": "https://teamspace.dev" },
         { "name": "AUTH_TRUST_HOST", "value": "true" },
         {
           "name": "TURNSTILE_SECRET_KEY",
@@ -28,8 +29,7 @@
           "name": "AUTH_SECRET",
           "value": "2d65a9a383dca1e9873114e3291cb8ffdaae1139ac8d23dfc826b514c453b557"
         },
-        { "name": "ADMIN_EMAILS", "value": "tjehdtns03@gmail.com" },
-        { "name": "http://localhost:3000", "value": "http://localhost:3000" }
+        { "name": "ADMIN_EMAILS", "value": "tjehdtns03@gmail.com" }
       ],
       "secrets": [
         {
@@ -44,7 +44,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/",
+          "awslogs-group": "/ecs/teamspace",
           "awslogs-create-group": "true",
           "awslogs-region": "ap-northeast-2",
           "awslogs-stream-prefix": "ecs"
