@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { Prisma, WorkspaceRole } from '@prisma/client';
+import { Prisma, WorkspaceRole, WorkspaceType } from '@prisma/client';
 import { randomUUID } from 'crypto';
 
 export const getPagePublicInfo = async (pageId: number) => {
@@ -112,6 +112,7 @@ export async function softDeletePageWithDescendants(
       select: {
         id: true,
         workspaceId: true,
+        parentId: true,
       },
     });
 
@@ -120,6 +121,29 @@ export async function softDeletePageWithDescendants(
     }
 
     await assertWorkspaceOwner(tx, page.workspaceId, userId);
+
+    const workspace = await tx.workspace.findUnique({
+      where: { id: page.workspaceId },
+      select: { type: true },
+    });
+
+    if (!workspace) {
+      throw new Error('Workspace not found');
+    }
+
+    if (workspace.type === WorkspaceType.PERSONAL && page.parentId === null) {
+      const rootPageCount = await tx.page.count({
+        where: {
+          workspaceId: page.workspaceId,
+          parentId: null,
+          deletedAt: null,
+        },
+      });
+
+      if (rootPageCount === 1) {
+        throw new Error('개인 워크스페이스의 마지막 루트 페이지는 삭제할 수 없습니다.');
+      }
+    }
 
     const targetIds = await collectDescendantIds(tx, page.workspaceId, page.id);
     const now = new Date();
