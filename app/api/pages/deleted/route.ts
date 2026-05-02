@@ -25,8 +25,6 @@ export async function GET() {
     if (message === 'PERSONAL_WORKSPACE_NOT_FOUND') {
       return NextResponse.json({ error: message }, { status: 404 });
     }
-
-    console.error('GET /api/pages/deleted error:', error);
     return NextResponse.json(
       { error: 'INTERNAL_SERVER_ERROR' },
       { status: 500 },

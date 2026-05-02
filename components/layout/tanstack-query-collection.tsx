@@ -261,6 +261,7 @@ export function useSoftDeletePageWithDescendantsMutation() {
       });
     },
     onError: (error) => {
+      console.log(error.message);
       const errorMessage =
         error instanceof Error ? error.message : '페이지 삭제에 실패했습니다.';
 
