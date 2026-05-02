@@ -75,7 +75,6 @@ export function SignUpDialog() {
   });
 
   function onSubmit(values: signUpFormValues) {
-    console.log(values);
     mutation.mutate(values);
   }
 

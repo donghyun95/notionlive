@@ -76,7 +76,6 @@ export function WorkspaceSettings({
     isLoading: useWorkspaceMembersLoading,
     isError,
   } = useWorkspaceMembers(workspaceId);
-  console.log('workspaceMembers:', workspaceMembers);
 
   const { mutate: removeMemberMutate } = useRemoveWorkspaceMemberMutation();
   const { mutate: updateRoleMutate } = useUpdateWorkspaceMemberRoleMutation();
@@ -92,7 +91,6 @@ export function WorkspaceSettings({
       name: workspaceName,
       userId: sessionUserId,
     });
-    console.log('save workspace name:', workspaceName);
   };
   const handleSearchInput = (value: any) => {
     setInviteKeyword(value);
@@ -299,7 +297,6 @@ function WorkspaceMemberItem({
   onRemoveMember,
   role,
 }: WorkspaceMemberItemProps) {
-  console.log(role);
   return (
     <motion.div
       layout

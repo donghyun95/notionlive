@@ -14,7 +14,6 @@ export default async function Page({
   if (!token) notFound();
   try {
     const pageData = await findPageByPublicToken(token);
-    console.log('token:', token);
 
     if (!pageData.id) {
       return null;

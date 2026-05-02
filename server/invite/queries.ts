@@ -173,7 +173,6 @@ export async function searchUsersByEmailPrefix(
   if (q.length < 2) {
     return [];
   }
-  console.log(workspaceId);
   return await prisma.user.findMany({
     where: {
       email: {

@@ -69,7 +69,6 @@ export function EditorSkeleton() {
 export function LoadingFallback() {
   useEffect(() => {
     performance.mark('suspense-fallback-mounted');
-    console.log('[perf] fallback mounted');
 
     return () => {
       performance.mark('suspense-fallback-unmounted');
@@ -84,7 +83,6 @@ export function LoadingFallback() {
       );
       const last = entries[entries.length - 1];
 
-      console.log('[perf] fallback duration:', Math.round(last.duration), 'ms');
     };
   }, []);
 

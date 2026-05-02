@@ -67,15 +67,12 @@ export default function TurnstileWidget({
       sitekey: siteKey,
       callback: (token: string) => {
         onVerify(token);
-        console.log('Turnstile token:', token);
       },
       'expired-callback': () => {
-        console.log('expired-callback fired');
         onVerify('');
         handleSubmitError('Security verification expired. Please try again.');
       },
       'error-callback': () => {
-        console.log('error-callback fired');
         onVerify('');
         handleSubmitError('Verification failed. Please try again.');
       },

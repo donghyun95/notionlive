@@ -13,7 +13,6 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const pageIdParam = searchParams.get('pageId');
     const userId = session.user?.id;
-    console.log(pageIdParam);
     const pageid = Number(pageIdParam);
 
     if (!pageIdParam || !Number.isFinite(pageid)) {

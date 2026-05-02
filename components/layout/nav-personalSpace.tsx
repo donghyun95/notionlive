@@ -80,7 +80,6 @@ function PageTreeNode({ page, depth }: PageTreeNodeProps) {
     staleTime: 1000 * 30,
     enabled: true,
   });
-  console.log(selfAndChildren);
   const queryClient = useQueryClient();
   const createChildMutation = useMutation({
     mutationFn: createPage,
@@ -134,7 +133,6 @@ function PageTreeNode({ page, depth }: PageTreeNodeProps) {
     if (isCursorOn) setisCursorOn(false);
   };
   function handleOpenChange(nextOpen: boolean) {
-    console.log('onOpenChange nextOpen:', nextOpen);
     setNodeOpen(page.id, nextOpen);
   }
 
@@ -264,7 +262,6 @@ export function NavPersonalSpace({ pages }: NavPersonalSpaceProps) {
     },
 
     onError: (_error, _vars, context) => {
-      console.log('❌ 에러 발생 → 롤백');
       if (!context?.previousPages) return;
       queryClient.setQueryData(
         ['initialPage', session?.user.id],
@@ -272,7 +269,6 @@ export function NavPersonalSpace({ pages }: NavPersonalSpaceProps) {
       );
     },
     onSettled: async () => {
-      console.log('🔄 invalidate → 서버 동기화');
 
       await queryClient.invalidateQueries({
         queryKey: ['initialPage', session?.user.id],

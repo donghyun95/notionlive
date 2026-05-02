@@ -33,7 +33,6 @@ export async function DELETE(_: Request, { params }: RouteContext) {
     return NextResponse.json(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'UNKNOWN_ERROR';
-    console.log('메세지', message);
     if (message === 'Not a workspace member') {
       return NextResponse.json({ error: message }, { status: 403 });
     }
@@ -48,7 +47,6 @@ export async function DELETE(_: Request, { params }: RouteContext) {
     if (
       message === '개인 워크스페이스의 마지막 루트 페이지는 삭제할 수 없습니다.'
     ) {
-      console.log('잘나옴');
       return NextResponse.json({ error: message }, { status: 400 });
     }
     console.error('DELETE /api/pages/[pageId]/soft-delete error:', error);
