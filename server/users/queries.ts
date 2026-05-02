@@ -150,7 +150,6 @@ export async function getWorkSpacePageByWorkSpaceId(workspaceId: number) {
   const RootPage = await prisma.page.findMany({
     where: { workspaceId, parentId: null, deletedAt: null },
   });
-  console.log('RootPage', RootPage);
   return RootPage;
 }
 
@@ -333,7 +332,6 @@ export async function getUserPageAccess(
     ispublished: page.ispublished,
     publictoken: page.publictoken,
   };
-  console.log('유저아이디', userId);
   if (!userId) {
     return {
       exists: true,
@@ -342,7 +340,6 @@ export async function getUserPageAccess(
       page: pageInfo,
     };
   }
-  console.log(userId, page.workspaceId);
   const membership = await prisma.workspaceMember.findUnique({
     where: {
       userId_workspaceId: {
@@ -356,7 +353,6 @@ export async function getUserPageAccess(
   });
 
   if (!membership) {
-    console.log('노멤버십', membership);
     return {
       exists: true,
       hasAccess: false,

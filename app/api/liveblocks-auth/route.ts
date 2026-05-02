@@ -15,7 +15,6 @@ export async function POST(req: Request) {
 
   const userId = authsession?.user?.id;
   const userName = String(authsession?.user?.name);
-  console.log('auth', authsession);
   const pageId = Number(room);
 
   const color = String(authsession?.user?.color);

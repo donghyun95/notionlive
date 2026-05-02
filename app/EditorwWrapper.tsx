@@ -55,7 +55,6 @@ export function EditorWrapper({ children }: { children: React.ReactNode }) {
   const contentRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const PageId = searchParams.get('PageId');
-  console.log('페이지 아이디', PageId);
   const updateMyPresence = useUpdateMyPresence();
   const throttledUpdate = useMemo(
     () =>
@@ -112,7 +111,6 @@ export function EditorWrapper({ children }: { children: React.ReactNode }) {
       clearTimeout(timer);
     };
   }, [PageId]);
-  console.log(layoutReady, '레이아웃 준비 상태');
   return (
     <>
       <div

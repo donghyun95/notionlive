@@ -40,7 +40,6 @@ export function Editor({ role }: { role: string }) {
   const setisCursorOn = useSelectedData((state) => state.setisCursorOn);
   const isReady = useIsEditorReady();
   useEffect(() => {
-    console.log('isready on');
     setisCursorOn(true);
     return () => setisCursorOn(false);
   }, [isReady]);

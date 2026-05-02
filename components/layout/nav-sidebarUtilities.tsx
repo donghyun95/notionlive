@@ -100,7 +100,6 @@ function DeletedPageList({
   onRestorePage,
   onDeletePage,
 }: DeletedPageListProps) {
-  console.log(onDeletePage, 'onDeletePage in DeletedPageList');
   if (pages.length === 0) {
     return (
       <div className="flex min-h-[180px] flex-col items-center justify-center text-center text-[#5c605a]">
@@ -184,7 +183,6 @@ export function SidebarBottomUtiltiy({
       title: page.title ?? 'Untitled',
       icon: <FileText className="h-4 w-4" />,
     })) ?? [];
-  console.log(onDeletePage, 'onDeletePage in SidebarBottomUtility22');
   return (
     <div className="space-y-1 py-2 px-2">
       <Button variant="ghost" className={utilityItemClass}>

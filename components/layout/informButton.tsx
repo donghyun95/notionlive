@@ -169,7 +169,6 @@ export function NotificationButton() {
   const userId = session?.user.id ?? '';
 
   const { data: PendingInvites, isLoading, error } = usePendingInvites(userId);
-  console.log(PendingInvites);
   const [readIds, setReadIds] = React.useState<string[]>([]);
   const [hiddenIds, setHiddenIds] = React.useState<string[]>([]);
   const [actionLoading, setActionLoading] = React.useState<

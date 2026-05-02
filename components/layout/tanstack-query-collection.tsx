@@ -72,7 +72,6 @@ export function useRenameWorkspaceMutation() {
       });
     },
     onError: () => {
-      console.log('실패');
       toast?.error?.('Failed WorkSpace Renaming', {
         position: 'top-center',
       });
@@ -261,7 +260,6 @@ export function useSoftDeletePageWithDescendantsMutation() {
       });
     },
     onError: (error) => {
-      console.log(error.message);
       const errorMessage =
         error instanceof Error ? error.message : '페이지 삭제에 실패했습니다.';
 
@@ -281,7 +279,6 @@ export function useHardDeletePageMutation() {
 
   return useMutation({
     mutationFn: ({ pageId, type }: HardDeletePageVariables) => {
-      console.log(type, 'type in useHardDeletePageMutation');
       return hardDeletePageFetch(pageId, type);
     },
 
