@@ -35,6 +35,13 @@ export default function TurnstileWidget({
   useEffect(() => {
     async function loadConfig() {
       try {
+        if (process.env.NODE_ENV === 'development') {
+          // dev에서는 테스트용 값
+          const sitekey = String(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+          setSiteKey(sitekey);
+          return;
+        }
+
         const res = await fetch('/api/public-config');
         if (!res.ok) {
           throw new Error('Failed to load config');
@@ -50,6 +57,7 @@ export default function TurnstileWidget({
         setIsLoading(false);
       }
     }
+
     loadConfig();
   }, [handleSubmitError]);
   const renderTurnstile = () => {
