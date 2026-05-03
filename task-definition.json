@@ -15,30 +15,39 @@
         }
       ],
       "essential": true,
-      "environment": [
-        { "name": "HOSTNAME", "value": "0.0.0.0" },
-        { "name": "AUTH_URL", "value": "https://teamspace.dev" },
-        { "name": "TURNSTILE_SITE_KEY", "value": "0x4AAAAAADEgmUAS8AXLW7zf" },
-        { "name": "NEXT_PUBLIC_SITE_URL", "value": "https://teamspace.dev" },
-        { "name": "AUTH_TRUST_HOST", "value": "true" },
+      "environment": [],
+      "secrets": [
         {
-          "name": "TURNSTILE_SECRET_KEY",
-          "value": "0x4AAAAAADEgmU2pxvWLhkbYkFxdJwUH9Po"
+          "name": "ADMIN_EMAILS",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:ADMIN_EMAILS::"
         },
         {
           "name": "AUTH_SECRET",
-          "value": "2d65a9a383dca1e9873114e3291cb8ffdaae1139ac8d23dfc826b514c453b557"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:AUTH_SECRET::"
         },
-        { "name": "ADMIN_EMAILS", "value": "tjehdtns03@gmail.com" }
-      ],
-      "secrets": [
+        {
+          "name": "AUTH_TRUST_HOST",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:AUTH_TRUST_HOST::"
+        },
         {
           "name": "DATABASE_URL",
           "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:DATABASE_URL::"
         },
         {
+          "name": "HOSTNAME",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:HOSTNAME::"
+        },
+        {
           "name": "LIVEBLOCKS_SECRET_KEY",
           "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:LIVEBLOCKS_SECRET_KEY::"
+        },
+        {
+          "name": "TURNSTILE_SITE_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:TURNSTILE_SITE_KEY::"
+        },
+        {
+          "name": "TURNSTILE_SECRET_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:TURNSTILE_SECRET_KEY::"
         }
       ],
       "logConfiguration": {
