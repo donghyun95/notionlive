@@ -56,6 +56,18 @@
         {
           "name": "AUTH_GOOGLE_SECRET",
           "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:AUTH_GOOGLE_SECRET::"
+        },
+        {
+          "name": "AUTH_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:AUTH_URL::"
+        },
+        {
+          "name": "NEXTAUTH_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:NEXTAUTH_URL::"
+        },
+        {
+          "name": "NEXT_PUBLIC_SITE_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:NEXT_PUBLIC_SITE_URL::"
         }
       ],
       "logConfiguration": {
