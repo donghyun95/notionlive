@@ -48,6 +48,14 @@
         {
           "name": "TURNSTILE_SECRET_KEY",
           "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:TURNSTILE_SECRET_KEY::"
+        },
+        {
+          "name": "AUTH_GOOGLE_ID",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:AUTH_GOOGLE_ID::"
+        },
+        {
+          "name": "AUTH_GOOGLE_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:990678687582:secret:teamspace-AMbgCS:AUTH_GOOGLE_SECRET::"
         }
       ],
       "logConfiguration": {
