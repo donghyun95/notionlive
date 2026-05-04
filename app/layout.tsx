@@ -46,6 +46,15 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="antialiased bg-white">
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-PFVTZGHP"
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
+
         <TanstackProvider>{children}</TanstackProvider>
         <Toaster />
       </body>
