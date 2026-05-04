@@ -17,7 +17,7 @@ import { Cloud, Lock, Mail, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
-
+import { FcGoogle } from 'react-icons/fc';
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(1, 'Password is required'),
@@ -351,6 +351,7 @@ export function LoginForm({
                     className="h-11 rounded-xl border border-transparent bg-[#f3f4ee] text-sm font-semibold text-[#30332e] hover:border-[#b0b3ac]/30 hover:bg-[#e7e9e2]"
                     onClick={() => signIn('google')}
                   >
+                    <FcGoogle className="mr-2 h-5 w-5" />
                     Google
                   </Button>
 
