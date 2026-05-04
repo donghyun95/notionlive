@@ -61,7 +61,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
 
         // 이미 이메일로 가입된 유저가 있는데
-        if (existingUser) {
+        if (existingUser?.password !== null) {
           // 👉 1. 그냥 막기
 
           return '/login?error=EMAIL_ALREADY_EXISTS';
