@@ -4,6 +4,7 @@ import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { verifyPassword } from './password';
 import { prisma } from './prisma';
+import { initializeUserByEmail } from '@/server/users/queries';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -42,7 +43,36 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
+  events: {
+    async createUser({ user }) {
+      if (user.email) {
+        await initializeUserByEmail(user.email);
+      }
+    },
+  },
+
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === 'google') {
+        if (!user.email) return false;
+
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        });
+
+        // 이미 이메일로 가입된 유저가 있는데
+        if (existingUser) {
+          // 👉 1. 그냥 막기
+
+          return '/login?error=EMAIL_ALREADY_EXISTS';
+          // 👉 2. 또는 연결 허용 (더 일반적)
+          // 그냥 true 리턴하면 adapter가 account 연결 시도
+        }
+      }
+
+      return true;
+    },
+
     jwt({ token, user }) {
       if (user && user.id) {
         token.id = user.id;

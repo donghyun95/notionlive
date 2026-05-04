@@ -11,10 +11,12 @@ import { SignUpDialog } from './signUp-dialog';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import TurnstileWidget from './TurnstileWidget';
-import { useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { verifyTurnstile } from '@/lib/api/verigyTurnstileFetch';
 import { Cloud, Lock, Mail, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -27,12 +29,15 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
+  const [isError, setError] = useState(false);
   const [token, setToken] = useState('');
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter();
-
+  const shownRef = useRef(false);
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -86,6 +91,38 @@ export function LoginForm({
       setIsSubmitting(false);
     }
   }
+  useEffect(() => {
+    if (error !== 'EMAIL_ALREADY_EXISTS') return;
+    setError(true);
+
+    // toast.error('이미 가입된 이메일입니다. 기존 방식으로 로그인하세요.', {
+    //   position: 'top-center',
+    // });
+  }, [error]);
+
+  useEffect(() => {
+    if (!isError) return;
+
+    const toastId = toast.error(
+      '이미 가입된 이메일입니다. 기존 방식으로 로그인하세요.',
+      {
+        position: 'top-center',
+        duration: Infinity,
+      },
+    );
+
+    const timer = setTimeout(() => {
+      toast.dismiss(toastId);
+      setError(false);
+
+      router.replace('/login');
+    }, 2500);
+
+    return () => {
+      clearTimeout(timer);
+      toast.dismiss(toastId);
+    };
+  }, [isError, router]);
 
   return (
     <div
@@ -312,6 +349,7 @@ export function LoginForm({
                   <Button
                     variant="outline"
                     className="h-11 rounded-xl border border-transparent bg-[#f3f4ee] text-sm font-semibold text-[#30332e] hover:border-[#b0b3ac]/30 hover:bg-[#e7e9e2]"
+                    onClick={() => signIn('google')}
                   >
                     Google
                   </Button>

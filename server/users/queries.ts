@@ -422,3 +422,53 @@ export async function getUserPersonalRootPages(userId: string) {
 
   return rootPages;
 }
+
+export async function initializeUserByEmail(email: string) {
+  const color = generatePremiumHexColor();
+
+  return prisma.$transaction(async (tx) => {
+    const user = await tx.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new Error('해당 이메일의 유저를 찾을 수 없습니다.');
+    }
+
+    const updatedUser = await tx.user.update({
+      where: { id: user.id },
+      data: { color },
+    });
+
+    const workspace = await tx.workspace.create({
+      data: {
+        name: `${user.name ?? user.email}'s Personal WorkSpace`,
+        type: WorkspaceType.PERSONAL,
+      },
+    });
+
+    await tx.workspaceMember.create({
+      data: {
+        userId: user.id,
+        workspaceId: workspace.id,
+        role: WorkspaceRole.OWNER,
+      },
+    });
+
+    const page = await tx.page.create({
+      data: {
+        workspaceId: workspace.id,
+        authorId: user.id,
+        parentId: null,
+        title: 'UnTitled',
+        order: 0,
+      },
+    });
+
+    return {
+      user: updatedUser,
+      workspace,
+      page,
+    };
+  });
+}
