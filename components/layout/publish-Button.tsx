@@ -20,7 +20,10 @@ export function PublishButton({}: any) {
   const [copied, setCopied] = useState(false);
   const queryClient = useQueryClient();
   const pageNodeID = useSelectedData((state) => state.pageNodeID);
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const baseUrl =
+    process.env.NODE_ENV === 'production'
+      ? 'https://teamspace.dev'
+      : 'http://localhost:3000';
 
   const { data: publicData } = useQuery({
     queryKey: ['pagePublicInfo', Number(pageNodeID)],
