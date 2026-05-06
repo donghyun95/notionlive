@@ -190,8 +190,8 @@ export function LoginForm({
           </section>
 
           {/* Right form */}
-          <section className="flex items-center justify-center bg-[#ffffff] px-6 py-8 sm:px-8 lg:px-10">
-            <div className="w-full max-w-[360px] space-y-8">
+          <section className="flex w-full min-w-0 items-center justify-center bg-[#ffffff] px-3 py-8 sm:px-8 lg:px-10">
+            <div className="w-full min-w-0 max-w-none sm:max-w-[360px] space-y-8">
               <div className="flex items-center justify-between">
                 <Link href="/" className="inline-flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-gradient-to-br from-[#4e45e4] to-[#bdbaff]">
@@ -264,7 +264,6 @@ export function LoginForm({
                             placeholder="name@company.com"
                             className="h-12 rounded-xl border-none bg-[#e0e4dc] px-4 text-sm text-[#30332e] placeholder:text-[#787c75] shadow-none transition-all duration-300 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-[#4e45e4]/20"
                           />
-
                           {fieldState.invalid && (
                             <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-red-500">
                               {fieldState.error?.message}
@@ -294,9 +293,8 @@ export function LoginForm({
                             {...field}
                             type="password"
                             placeholder="••••••••"
-                            className="h-12 rounded-xl border-none bg-[#e0e4dc] px-4 pr-24 text-sm"
+                            className="box-border h-12 w-full min-w-0 max-w-full rounded-xl border-none bg-[#e0e4dc] px-4 text-sm"
                           />
-
                           {fieldState.invalid && (
                             <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-red-500">
                               {fieldState.error?.message}

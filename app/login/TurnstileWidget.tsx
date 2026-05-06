@@ -11,6 +11,7 @@ declare global {
         options: {
           sitekey: string;
           callback?: (token: string) => void;
+          size?: 'normal' | 'compact' | 'invisible';
           'expired-callback'?: () => void;
           'error-callback'?: () => void;
         },
@@ -65,6 +66,7 @@ export default function TurnstileWidget({
       return;
     window.turnstile.render(ref.current, {
       sitekey: siteKey,
+      size: window.innerWidth < 360 ? 'compact' : 'normal',
       callback: (token: string) => {
         onVerify(token);
       },
@@ -98,7 +100,9 @@ export default function TurnstileWidget({
         strategy="afterInteractive"
         onReady={renderTurnstile}
       />
-      <div ref={ref} />
+      <div className="flex w-full min-w-0 justify-center overflow-hidden">
+        <div ref={ref} className="origin-center scale-[0.86] sm:scale-100" />
+      </div>
     </>
   );
 }
