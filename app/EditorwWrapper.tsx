@@ -129,7 +129,6 @@ export function EditorWrapper({ children }: { children: React.ReactNode }) {
           <PopOverEmoticon />
           {children}
           {isDesktop && layoutReady && isCursorOn && <CursorLayer />}
-          <FloatingFeedback />
         </motion.div>
       </div>
     </>
