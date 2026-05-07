@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUsers, getSidebarData, registerUser } from '@/server/users/queries';
 import { auth } from '@/lib/auth';
-import { createId } from '@paralleldrive/cuid2';
+import { verifyTurnstileToken } from '@/lib/turnstile';
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -24,13 +24,19 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password, name } = body;
-    if (!email || !password || !name) {
+    const { email, password, name, turnstileToken } = body;
+    if (!email || !password || !name || !turnstileToken) {
       return NextResponse.json(
         { message: '필수값이 비어 있습니다.' },
         { status: 400 },
       );
     }
+    const isTurnstileVerified = await verifyTurnstileToken(String(turnstileToken));
+
+    if (!isTurnstileVerified) {
+      return NextResponse.json({ message: '로봇 검증에 실패했습니다.' }, { status: 400 });
+    }
+
     if (password.length < 8) {
       return NextResponse.json(
         { message: '비밀번호는 8자 이상이어야 합니다.' },

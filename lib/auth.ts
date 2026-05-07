@@ -5,6 +5,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import { verifyPassword } from './password';
 import { prisma } from './prisma';
 import { initializeUserByEmail } from '@/server/users/queries';
+import { verifyTurnstileToken } from './turnstile';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -19,6 +20,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
+
+        const turnstileToken = String(credentials.turnstileToken ?? '');
+        const isTurnstileVerified = await verifyTurnstileToken(turnstileToken);
+
+        if (!isTurnstileVerified) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: String(credentials.email) },
