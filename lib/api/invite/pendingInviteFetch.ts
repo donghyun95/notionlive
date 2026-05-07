@@ -1,5 +1,5 @@
-export async function PendingInvitesfetch(userId: string) {
-  const res = await fetch(`/api/invite/pending?userId=${userId}`, {
+export async function PendingInvitesfetch() {
+  const res = await fetch('/api/invite/pending', {
     method: 'GET',
     cache: 'no-store', // 최신 데이터 보장
   });
