@@ -79,11 +79,10 @@ export function useRenameWorkspaceMutation() {
   });
 }
 
-export function usePendingInvites(userId: string) {
+export function usePendingInvites() {
   return useQuery({
-    queryKey: ['pendingInvites', userId],
-    queryFn: () => PendingInvitesfetch(userId),
-    enabled: !!userId, // userId 없으면 실행 안 함
+    queryKey: ['pendingInvites'],
+    queryFn: () => PendingInvitesfetch(),
   });
 }
 

@@ -1,16 +1,18 @@
 // app/api/invites/pending/route.ts
 
 import { getPendingInvitesByUserId } from '@/server/invite/queries';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    const userId = req.nextUrl.searchParams.get('userId');
+    const session = await auth();
+    const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json(
-        { message: 'userId is required' },
-        { status: 400 },
+        { message: 'Unauthorized' },
+        { status: 401 },
       );
     }
 

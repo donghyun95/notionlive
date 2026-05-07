@@ -166,9 +166,7 @@ function InviteNotificationCard({
 
 export function NotificationButton() {
   const { data: session } = useSession();
-  const userId = session?.user.id ?? '';
-
-  const { data: PendingInvites, isLoading, error } = usePendingInvites(userId);
+  const { data: PendingInvites, isLoading, error } = usePendingInvites();
   const [readIds, setReadIds] = React.useState<string[]>([]);
   const [hiddenIds, setHiddenIds] = React.useState<string[]>([]);
   const [actionLoading, setActionLoading] = React.useState<
