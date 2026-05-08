@@ -244,7 +244,7 @@ export function LoginForm({
 
               <form
                 id="email-form"
-                className="space-y-5"
+                className="space-y-4 mb-2"
                 onSubmit={form.handleSubmit(onSubmit)}
               >
                 <div className="space-y-4">
@@ -342,7 +342,8 @@ export function LoginForm({
                   </span>
                   <div className="flex-1 border-t border-[#b0b3ac]/30" />
                 </div>
-
+              </form>
+              <div className="mb-4">
                 <div className="grid grid-cols-2 gap-3">
                   <Button
                     variant="outline"
@@ -357,12 +358,7 @@ export function LoginForm({
                     <SignUpDialog />
                   </div>
                 </div>
-
-                <p className="pt-1 text-center text-sm text-[#5c605a] sm:hidden">
-                  Don&apos;t have an account?{' '}
-                  <span className="font-semibold text-[#4e45e4]">Sign up</span>
-                </p>
-              </form>
+              </div>
 
               <footer className="flex items-center justify-between border-t border-[#b0b3ac]/20 pt-5">
                 <span className="text-[10px] uppercase tracking-[0.18em] text-[#787c75]">
