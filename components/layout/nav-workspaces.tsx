@@ -7,6 +7,7 @@ import {
   Plus,
   Folder,
   FolderOpen,
+  Loader2,
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import {
@@ -195,7 +196,11 @@ data-[active=true]:bg-[#e0e4dc]
           >
             <div className="relative flex h-8 w-8 shrink-0 items-center justify-center">
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity group-hover/row:opacity-0">
-                <span className="text-lg leading-none">{icon}</span>
+                {page.isDummy ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-[#5c605a]" />
+                ) : (
+                  <span className="text-lg leading-none">{icon}</span>
+                )}
               </div>
 
               <CollapsibleTrigger asChild>
