@@ -52,26 +52,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 
   callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider === 'google') {
-        if (!user.email) return false;
+    // async signIn({ user, account }) {
+    //   if (account?.provider === 'google') {
+    //     if (!user.email) return false;
 
-        const existingUser = await prisma.user.findUnique({
-          where: { email: user.email },
-        });
+    //     const existingUser = await prisma.user.findUnique({
+    //       where: { email: user.email },
+    //     });
 
-        // 이미 이메일로 가입된 유저가 있는데
-        if (existingUser?.password !== null) {
-          // 👉 1. 그냥 막기
+    //     // 이미 이메일로 가입된 유저가 있는데
+    //     if (existingUser?.password !== null) {
+    //       // 👉 1. 그냥 막기
 
-          return '/login?error=EMAIL_ALREADY_EXISTS';
-          // 👉 2. 또는 연결 허용 (더 일반적)
-          // 그냥 true 리턴하면 adapter가 account 연결 시도
-        }
-      }
+    //       return '/login?error=EMAIL_ALREADY_EXISTS';
+    //       // 👉 2. 또는 연결 허용 (더 일반적)
+    //       // 그냥 true 리턴하면 adapter가 account 연결 시도
+    //     }
+    //   }
 
-      return true;
-    },
+    //   return true;
+    // },
 
     jwt({ token, user }) {
       if (user && user.id) {
