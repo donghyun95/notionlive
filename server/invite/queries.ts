@@ -167,10 +167,8 @@ export async function declineInvite(inviteId: string, userId: string) {
 export async function searchUsersByEmailPrefix(
   keyword: string,
   workspaceId: number,
-  limit = 10,
 ) {
   const q = keyword.trim();
-  const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 10);
 
   if (q.length < 2) {
     return [];
@@ -202,7 +200,7 @@ export async function searchUsersByEmailPrefix(
     orderBy: {
       email: 'asc',
     },
-    take: safeLimit,
+    take: 10,
   });
 }
 export async function getPendingInvitesByUserId(userId: string) {
