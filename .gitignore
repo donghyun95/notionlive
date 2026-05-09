@@ -44,3 +44,9 @@ next-env.d.ts
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+
+infra/.terraform/
+infra/.terraform.lock.hcl
+infra/terraform.tfstate
+infra/terraform.tfstate.backup

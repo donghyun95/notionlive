@@ -43,10 +43,15 @@ export async function POST(req: Request) {
   // ✅ 핵심: userInfo로 name/color 넘김
   try {
     const identifieduser = await getUserPageAccess(userId, pageId);
+    console.log({
+      rawColor: authsession?.user?.color,
+      rawColorType: typeof authsession?.user?.color,
+      normalizedColor: color,
+    });
     const session = liveblocks.prepareSession(userId, {
       userInfo: {
         name: userName,
-        color,
+        color: color,
         image,
         // avatar: "https://..." // 원하면 추가
       },
@@ -61,4 +66,14 @@ export async function POST(req: Request) {
   } catch (error) {
     return new Response('Unauthorized', { status: 403 });
   }
+}
+
+function normalizeHexColor(color: unknown): string {
+  if (typeof color !== 'string') return generatePremiumHexColor();
+
+  const trimmed = color.trim();
+
+  return /^#[0-9A-Fa-f]{6}$/.test(trimmed)
+    ? trimmed.toUpperCase()
+    : generatePremiumHexColor();
 }
