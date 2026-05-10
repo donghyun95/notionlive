@@ -67,13 +67,3 @@ export async function POST(req: Request) {
     return new Response('Unauthorized', { status: 403 });
   }
 }
-
-function normalizeHexColor(color: unknown): string {
-  if (typeof color !== 'string') return generatePremiumHexColor();
-
-  const trimmed = color.trim();
-
-  return /^#[0-9A-Fa-f]{6}$/.test(trimmed)
-    ? trimmed.toUpperCase()
-    : generatePremiumHexColor();
-}
