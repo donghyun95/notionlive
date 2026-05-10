@@ -10,7 +10,8 @@ jobs:
   deploy:
     # GitHub가 제공하는 Ubuntu 서버에서 실행
     runs-on: ubuntu-latest
-
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
       # 1. 현재 GitHub 저장소 코드 가져오기
       - name: Checkout code
@@ -60,17 +61,6 @@ jobs:
       # GitHub Actions 서버에는 terraform이 기본 설치가 아닐 수 있음
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-
-      - name: Get secrets from AWS Secrets Manager
-        uses: aws-actions/aws-secretsmanager-get-secrets@v2
-        with:
-          secret-ids: |
-            CLOUDFLARE,terraSecret
-          parse-json-secrets: true
-
-      - name: Debug secrets
-        run: |
-          env | grep CLOUDFLARE
 
       # 6. Terraform 실행
       # 새 Docker 이미지를 ECS에 반영
