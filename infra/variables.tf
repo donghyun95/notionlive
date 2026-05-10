@@ -23,11 +23,6 @@ variable "secrets_arn" {
   type = string
 }
 
-variable "cloudflare_api_token" {
-  type      = string
-  sensitive = true
-}
-
 variable "cloudflare_zone_id" {
   type      = string
   default = "9a345989fd581079d2d436196d57d37b"
