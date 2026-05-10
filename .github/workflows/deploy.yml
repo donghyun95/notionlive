@@ -1,4 +1,3 @@
-```yaml
 name: Deploy to ECS
 
 # master 브랜치에 push 되면 실행
@@ -68,7 +67,7 @@ jobs:
           secret-ids: |
             terraSecret
           parse-json-secrets: true
-      
+
       - name: Debug secrets
         run: |
           env | grep CLOUDFLARE
@@ -96,4 +95,3 @@ jobs:
           # container_image 변수에 새 이미지 주소 전달
           terraform apply -auto-approve \
             -var="container_image=$IMAGE_URI"
-```
