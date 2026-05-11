@@ -1,5 +1,13 @@
 terraform {
-  required_version = ">= 1.5.0"
+  required_version = "1.15.2"
+
+  cloud {
+    organization = "example_123123123"
+
+    workspaces {
+      name = "teamspace-ECSInfra"
+    }
+  }
 
   required_providers {
     aws = {
@@ -14,7 +22,9 @@ terraform {
 }
 
 provider "aws" {
-  region = "ap-northeast-2"
+  region     = "ap-northeast-2"
 }
 
-provider "cloudflare" {}
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
+}

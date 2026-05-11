@@ -28,3 +28,8 @@ variable "cloudflare_zone_id" {
   default = "9a345989fd581079d2d436196d57d37b"
   sensitive = true
 }
+
+variable "cloudflare_api_token" {
+  type      = string
+  sensitive = true
+}
