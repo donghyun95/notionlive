@@ -251,7 +251,7 @@ room 진입 속도가 눈에 띄게 개선되는 것을 확인했습니다.
 초기 진입 시 CursorLayer를 비활성화하고,  
 일정 시간 이후 활성화하도록 변경했습니다.
 
-성능 측정을 위해 Liveblocks의 ClientSideSuspense를 기준으로  
+성능 측정을 위해 Suspense = Loading ui가 얼마나 오래 표시되었는지 기준으로  
 초기 로딩 시간을 계측한 결과,
 
 ![설명](./2200ms.png)
@@ -668,4 +668,19 @@ React에서는 element 참조가 바뀌면 해당 subtree 전체가 reconciliati
 이번 작업을 통해, 단순히 좌표 계산 로직만 수정하는 것이 아니라  
 **좌표계, 렌더링 구조, 레이아웃 조건까지 함께 고려해야 실시간 협업 기능을 안정적으로 구현할 수 있다는 점**을 확인할 수 있었습니다.
 
+</details>
+
+<details>
+  <summary>컨테이너는 Ready, ALB는 Unhealthy => ALB와 대상 그룹 간의 가용 영역(AZ) 불일치 문제</summary>
+  health check 실패 원인을 찾기 위해 SG, NACL, 포트 매핑, Target Group, NAT Gateway, Route Table까지 전부 의심하며 하루 종일 삽질했던 기록...
+  결국 원인은 ALB와 ECS Target의 AZ 불일치 문제였습니다.
+  https://diary6490.tistory.com/6 
+</details>
+
+<details>
+  <summary>Terraform Remote State 없이 GitHub Actions만 쓰다가 destroy에서 고생</summary>
+  "배포는 잘 되는데 왜 destroy는 안 되지?"에서 시작해
+  variable, provider credential, import, state 문제까지 연쇄적으로 겪었던 기록.
+  결국 Terraform은 코드가 아니라 state 기반으로 동작한다는 걸 제대로 체감했습니다.
+  https://diary6490.tistory.com/9 
 </details>
