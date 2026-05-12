@@ -2,14 +2,20 @@
 
 import { useEffect } from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
+import { codeBlockOptions } from '@blocknote/code-block';
 import {
   useCreateBlockNoteWithLiveblocks,
   useIsEditorReady,
 } from '@liveblocks/react-blocknote';
 import { BlockNoteEditor } from '@blocknote/core';
-import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+import {
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  createCodeBlockSpec,
+} from '@blocknote/core';
 import { TitleInput } from './TitleInput';
 import { useSelectedData } from './Providers/ClientDataProvider';
+import 'highlight.js/styles/tokyo-night-dark.css';
 const ALLOWED_IMAGE_TYPES = [
   'image/jpeg',
   'image/png',
@@ -64,6 +70,10 @@ const { video, audio, file, ...remainingBlockSpecs } = defaultBlockSpecs;
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...remainingBlockSpecs,
+    codeBlock: createCodeBlockSpec({
+      ...codeBlockOptions,
+      defaultLanguage: 'typescript',
+    }),
   },
 });
 
