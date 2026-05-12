@@ -1,12 +1,6 @@
-
-
 ## Demo
 
 https://github.com/user-attachments/assets/92f5c831-9d27-4e81-a800-f5147a44f89b
-
-
-
-
 
 # TeamSpace
 
@@ -23,7 +17,24 @@ https://github.com/user-attachments/assets/92f5c831-9d27-4e81-a800-f5147a44f89b
 - 페이지 공개 토글 및 토큰 기반 읽기 전용 공유 링크
 - 초대/수락/거절 플로우
 - 인증(NextAuth + Credentials/Google) 및 회원가입
-- 스냅샷 기반 이전 버전 복구
+- 스냅샷 기반 이전 버전 복구 [추가 개발 예정]
+
+## 어떤 문제를 해결하기 위해 만들었나요?
+
+TeamSpace는 기존 문서 협업 도구를 사용하면서 느꼈던 불편함을 해결하기 위해 시작한 개인 프로젝트입니다.
+
+Google Docs는 실시간 문서 협업에는 강점이 있지만, UI가 다소 딱딱하고 프로젝트나 자료를 구조적으로 정리하기에는 아쉬움이 있었습니다. 반면 Notion은 감성적인 UI와 블록 기반 문서 작성 경험이 좋았지만, 팀 단위로 사용하려고 하면 유료 요금제나 사용 제한이 부담으로 다가왔습니다.
+
+특히 팀 프로젝트나 사이드 프로젝트를 진행할 때 다음과 같은 문제를 자주 겪었습니다.
+
+- 팀원을 초대했을 때 워크스페이스 사용 제한이나 요금제 문제로 협업이 매끄럽게 이어지지 않았습니다.
+- 문서와 자료를 함께 정리하고 싶어도 블록 제한이나 기능 제한 때문에 자유롭게 사용하기 어려웠습니다.
+- 여러 명이 동시에 작업하고 있어도, 누가 어느 부분을 보고 있는지 알기 어려워 실제로 “함께 작업하고 있다”는 느낌이 부족했습니다.
+- 대학생이나 취업 준비생 입장에서는 작은 구독료도 부담이 될 수 있어, 팀 단위로 가볍게 시작하기 어려웠습니다.
+
+이러한 문제를 해결하기 위해 TeamSpace는 무료로 부담 없이 사용할 수 있는 협업 워크스페이스를 목표로 만들었습니다. 문서를 함께 작성하고 정리하는 기본적인 협업 경험은 유지하면서, Figma처럼 팀원들의 실시간 커서를 확인할 수 있도록 하여 더 생생한 공동 작업 경험을 제공하고자 했습니다.
+
+TeamSpace는 팀플을 진행하는 대학생, 사이드 프로젝트를 함께 만드는 사람들, 포트폴리오나 스터디 자료를 정리하는 취업 준비생들이 비용 부담 없이 사용할 수 있는 협업 도구를 지향합니다.
 
 ---
 
@@ -75,10 +86,17 @@ https://github.com/user-attachments/assets/92f5c831-9d27-4e81-a800-f5147a44f89b
 - **DB/ORM**: PostgreSQL, Prisma
 - **Realtime**: Liveblocks, BlockNote
 - **Validation**: Zod, React Hook Form
+- **Infra**: AWS, Terraform , ECS
 
 ---
 
-## 4) 아키텍처 요약
+## 4)System Architecture AND CICD WorkFlow
+
+![System Architecture](./system.png)
+
+![CICD WorkFlow](./cicd.png)
+
+## 5) 아키텍처 요약
 
 ```text
 app/
@@ -98,7 +116,7 @@ prisma/
   ├─ schema.prisma                    # 데이터 모델
 ```
 
-## 5) 이슈 및 트러블슈팅
+## 6) 이슈 및 트러블슈팅
 
 <details>
   <summary>페이지 전환시 2200ms => 334ms 개선 </summary>
