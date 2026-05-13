@@ -92,9 +92,45 @@ TeamSpace는 팀플을 진행하는 대학생, 사이드 프로젝트를 함께 
 
 ## 4)System Architecture AND CICD WorkFlow
 
+### Architecture Decisions
+
 ![System Architecture](./system.png)
 
 ![CICD WorkFlow](./cicd.png)
+
+### 1. ECS Fargate 기반 컨테이너 환경 구성
+
+애플리케이션 실행 환경은 **Amazon ECS Fargate** 기반으로 구성하였습니다.
+
+- 서버 인프라를 직접 관리하지 않아도 됨
+- 컨테이너 배포 및 운영 자동화 가능
+- 서비스 확장 및 장애 복구 지원
+- 운영 복잡도를 줄이고 개발에 집중 가능
+
+특히 서버 생성, 패치, 스케일링 등의 관리 작업을 AWS가 처리하기 때문에  
+운영 부담을 최소화할 수 있다는 점에서 Fargate를 선택하였습니다.
+
+### 2. VPC 및 Subnet 분리
+
+보안성과 네트워크 관리 효율성을 위해 Public / Private Subnet 구조를 적용하였습니다.
+
+| Component   | Subnet         | 목적                   |
+| ----------- | -------------- | ---------------------- |
+| ALB         | Public Subnet  | 외부 요청 수신         |
+| ECS Service | Private Subnet | 애플리케이션 보호      |
+| RDS         | Private Subnet | 데이터베이스 보안 강화 |
+
+외부에는 ALB만 노출하고, ECS 및 RDS는 내부 네트워크에서만 통신하도록 구성하였습니다.
+
+### 3. 장애 대응 및 롤백 전략
+
+운영 안정성을 위해 다음 전략을 적용하였습니다.
+
+- ECS Service 기반 자동 Task 복구
+- 배포 실패 시 이전 Task Definition으로 롤백
+- Auto Scaling을 통해 최대 4개 Task까지 확장 가능
+
+이를 통해 장애 발생 시 빠른 복구가 가능하도록 구성하였습니다.
 
 ## 5) 아키텍처 요약
 
