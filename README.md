@@ -114,11 +114,10 @@ TeamSpace는 팀플을 진행하는 대학생, 사이드 프로젝트를 함께 
 
 보안성과 네트워크 관리 효율성을 위해 Public / Private Subnet 구조를 적용하였습니다.
 
-| Component   | Subnet         | 목적                   |
-| ----------- | -------------- | ---------------------- |
-| ALB         | Public Subnet  | 외부 요청 수신         |
-| ECS Service | Private Subnet | 애플리케이션 보호      |
-| RDS         | Private Subnet | 데이터베이스 보안 강화 |
+| Component   | Subnet         | 목적              |
+| ----------- | -------------- | ----------------- |
+| ALB         | Public Subnet  | 외부 요청 수신    |
+| ECS Service | Private Subnet | 애플리케이션 보호 |
 
 외부에는 ALB만 노출하고, ECS 및 RDS는 내부 네트워크에서만 통신하도록 구성하였습니다.
 
