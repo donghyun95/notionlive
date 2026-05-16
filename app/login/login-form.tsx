@@ -363,7 +363,7 @@ export function LoginForm({
 
               <footer className="flex items-center justify-between border-t border-[#b0b3ac]/20 pt-5">
                 <span className="text-[10px] uppercase tracking-[0.18em] text-[#787c75]">
-                  © 2026 TeamSpace
+                  © 2025 TeamSpace
                 </span>
                 <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.18em] text-[#787c75]">
                   <span>Privacy</span>

@@ -28,3 +28,18 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ghcr.io/donghyun95/teamspace-lightsail:latest
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/lightsail.pem
+          chmod 600 ~/.ssh/lightsail.pem
+
+      - name: Deploy on Lightsail
+        run: |
+          ssh -i ~/.ssh/lightsail.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.LIGHTSAIL_HOST }} "
+            cd ~/app &&
+            docker compose pull &&
+            docker compose up -d &&
+            docker image prune -a -f
+          "
