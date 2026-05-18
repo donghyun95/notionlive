@@ -25,7 +25,6 @@ function CursorLayer() {
     }),
     shallow,
   );
-  console.log('sd', others);
   // 다른 사용자가 없으면 아무것도 렌더링하지 않음
   if (others.length === 0) return null;
 
